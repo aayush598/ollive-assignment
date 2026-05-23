@@ -49,7 +49,10 @@ export default function ChatPage() {
           const data = await res.json();
           setAvailableModels(data.models);
           if (data.models.length > 0 && !selectedModel) {
-            setSelectedModel(data.models[0].model);
+            const defaultModel = data.models.find(
+              (m: AvailableModel) => m.model === "google/gemma-4-31b-it",
+            );
+            setSelectedModel(defaultModel?.model ?? data.models[0].model);
           }
         }
       } catch {

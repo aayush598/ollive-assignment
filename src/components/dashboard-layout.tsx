@@ -14,6 +14,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const navItems = [
     { href: "/chat", label: "Chat", icon: "💬" },
     { href: "/conversations", label: "Conversations", icon: "📋" },
+    { href: "/admin", label: "Admin", icon: "📊" },
   ];
 
   async function handleSignOut() {

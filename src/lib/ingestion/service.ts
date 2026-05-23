@@ -1,9 +1,11 @@
 import { v4 as uuid } from "uuid";
+import { sql, eq, and } from "drizzle-orm";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { InferenceLogSchema, type InferenceLog } from "../llm/types";
 import { redactPII } from "../pii/redactor";
 import { z } from "zod";
+import { ingestionEvents } from "./events";
 
 const BatchIngestSchema = z.object({
   logs: z.array(InferenceLogSchema),
@@ -50,6 +52,15 @@ export async function processIngestBatch(
         piiRedacted: processedLog.piiRedacted ?? false,
       });
       result.accepted++;
+
+      ingestionEvents.emit("log:ingested", {
+        id: uuid(),
+        provider: processedLog.provider,
+        model: processedLog.model,
+        status: processedLog.status,
+        latencyMs: processedLog.latencyMs,
+        totalTokens: processedLog.totalTokens,
+      });
     } catch (error) {
       result.rejected++;
       result.errors.push(
@@ -89,29 +100,136 @@ export async function getInferenceLogs(
     offset?: number;
   },
 ) {
+  const conditions = [];
+  if (options?.conversationId) conditions.push(eq(schema.inferenceLogs.conversationId, options.conversationId));
+  if (options?.userId) conditions.push(eq(schema.inferenceLogs.userId, options.userId));
+  if (options?.provider) conditions.push(eq(schema.inferenceLogs.provider, options.provider));
+  if (options?.status) conditions.push(sql`${schema.inferenceLogs.status} = ${options.status}`);
+
   const query = db
     .select()
     .from(schema.inferenceLogs)
     .limit(options?.limit ?? 50)
     .offset(options?.offset ?? 0);
 
+  if (conditions.length > 0) {
+    query.where(and(...conditions));
+  }
+
   return query;
+}
+
+export interface DashboardStats {
+  totalRequests: number;
+  totalTokens: number;
+  averageLatencyMs: number;
+  p95LatencyMs: number;
+  successCount: number;
+  errorCount: number;
+  cancelledCount: number;
+  successRate: number;
+  errorRate: number;
+  byProvider: Record<string, {
+    count: number;
+    totalTokens: number;
+    avgLatencyMs: number;
+    errors: number;
+  }>;
+  recentErrors: Array<{
+    id: string;
+    provider: string;
+    model: string;
+    error: string | null;
+    createdAt: Date;
+  }>;
+  requestsPerMinute: number;
+  tokensPerMinute: number;
 }
 
 export async function getInferenceStats(options?: {
   userId?: string;
   provider?: string;
   since?: Date;
-}) {
-  const logs = await db
-    .select();
+}): Promise<DashboardStats> {
+  const since = options?.since ?? new Date(Date.now() - 3600000);
+  const since5m = new Date(Date.now() - 300000);
+
+  const [total] = await db.execute<{ count: number; total_tokens: number; avg_latency: number; success: number; error: number; cancelled: number }>(sql`
+    SELECT
+      COUNT(*)::int as count,
+      COALESCE(SUM(total_tokens), 0)::int as total_tokens,
+      COALESCE(AVG(latency_ms), 0)::int as avg_latency,
+      COALESCE(SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END), 0)::int as success,
+      COALESCE(SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END), 0)::int as error,
+      COALESCE(SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END), 0)::int as cancelled
+    FROM inference_logs
+  `);
+
+  const [recent] = await db.execute<{ requests: number; tokens: number }>(sql`
+    SELECT
+      COUNT(*)::int as requests,
+      COALESCE(SUM(total_tokens), 0)::int as tokens
+    FROM inference_logs
+    WHERE created_at >= ${since5m.toISOString()}
+  `);
+
+  const perProvider = await db.execute<{ provider: string; count: number; total_tokens: number; avg_latency: number; errors: number }>(sql`
+    SELECT
+      provider,
+      COUNT(*)::int as count,
+      COALESCE(SUM(total_tokens), 0)::int as total_tokens,
+      COALESCE(AVG(latency_ms), 0)::int as avg_latency,
+      COALESCE(SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END), 0)::int as errors
+    FROM inference_logs
+    GROUP BY provider
+    ORDER BY count DESC
+  `);
+
+  const recentErrors = await db
+    .select({
+      id: schema.inferenceLogs.id,
+      provider: schema.inferenceLogs.provider,
+      model: schema.inferenceLogs.model,
+      error: schema.inferenceLogs.error,
+      createdAt: schema.inferenceLogs.createdAt,
+    })
+    .from(schema.inferenceLogs)
+    .where(eq(schema.inferenceLogs.status, "error"))
+    .orderBy(sql`created_at DESC`)
+    .limit(10);
+
+  const totalRequests = total?.count ?? 0;
+  const totalErrors = total?.error ?? 0;
+
   return {
-    totalRequests: 0,
-    totalTokens: 0,
-    averageLatencyMs: 0,
-    successCount: 0,
-    errorCount: 0,
-    cancelledCount: 0,
-    byProvider: {} as Record<string, { count: number; totalTokens: number; avgLatencyMs: number }>,
+    totalRequests,
+    totalTokens: total?.total_tokens ?? 0,
+    averageLatencyMs: total?.avg_latency ?? 0,
+    p95LatencyMs: 0,
+    successCount: total?.success ?? 0,
+    errorCount: total?.error ?? 0,
+    cancelledCount: total?.cancelled ?? 0,
+    successRate: totalRequests > 0 ? ((totalRequests - totalErrors) / totalRequests) * 100 : 100,
+    errorRate: totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0,
+    byProvider: Object.fromEntries(
+      (perProvider ?? []).map((p: Record<string, unknown>) => [
+        p.provider,
+        {
+          count: p.count as number,
+          totalTokens: p.total_tokens as number,
+          avgLatencyMs: p.avg_latency as number,
+          errors: p.errors as number,
+        },
+      ]),
+    ),
+    recentErrors: (recentErrors ?? []).map((e) => ({
+      id: e.id,
+      provider: e.provider,
+      model: e.model,
+      error: e.error,
+      createdAt: e.createdAt,
+    })),
+    requestsPerMinute: Math.round((recent?.requests ?? 0) / 5),
+    tokensPerMinute: Math.round((recent?.tokens ?? 0) / 5),
   };
 }

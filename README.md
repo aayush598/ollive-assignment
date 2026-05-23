@@ -9,6 +9,8 @@ A production-ready, lightweight inference logging and ingestion system for LLM a
 - **Inference Logging** — Automatic capture of latency, token usage, model, provider, errors, and metadata
 - **PII Redaction** — Automatic detection and redaction of emails, phone numbers, SSNs, credit cards, etc.
 - **Conversation Management** — List, cancel, resume, and delete conversations
+- **Admin Dashboard** — Real-time latency, throughput, error rate, and provider breakdown metrics
+- **Event-Based Ingestion** — In-process EventEmitter + PostgreSQL LISTEN/NOTIFY for async processing
 - **Authentication** — Email/password auth with Better Auth
 - **Docker Compose** — One-command setup with PostgreSQL
 - **CI/CD** — GitHub Actions pipeline with linting, testing, type checking, and Docker build
@@ -27,7 +29,7 @@ A production-ready, lightweight inference logging and ingestion system for LLM a
 │  ┌─────┴──────────────┴───────────────────┴──────────┐   │
 │  │              API Routes (Next.js)                  │   │
 │  │  /api/chat  /api/ingest  /api/conversations        │   │
-│  │  /api/auth  /api/health                            │   │
+ │  │  /api/auth  /api/admin/stats  /api/health           │   │
 │  └───────────────────────┬────────────────────────────┘   │
 │                          │                                │
 │  ┌───────────────────────┴────────────────────────────┐   │
@@ -62,7 +64,7 @@ A production-ready, lightweight inference logging and ingestion system for LLM a
 **`sessions`** — User sessions with expiry
 **`conversations`** — Chat conversations with status (active/cancelled/completed), model, provider, aggregated token/latency stats
 **`messages`** — Individual chat messages linked to conversations
-**`inference_logs`** — LLM inference metadata with provider, model, latency, tokens, input/output previews, PII flags, errors, and flexible JSONB metadata
+**`inference_logs`** — LLM inference metadata with provider, model, latency, tokens, input/output previews, PII flags, errors, and flexible JSONB metadata. Has a `NOTIFY` trigger (`notify_inference_log_insert`) for event-driven consumers.
 
 **Key decisions:**
 - `total_tokens` and `total_latency_ms` on conversations enable fast dashboard queries without aggregating messages
@@ -148,8 +150,8 @@ docker compose -f docker/docker-compose.yml up -d
 
 ## What I Would Improve
 
-- **Event-driven architecture** — Use a message queue (Redis/Postgres LISTEN/NOTIFY, Kafka) for async ingestion
-- **Real-time dashboards** — WebSocket-based latency, throughput, and error dashboards
+- **WebSocket dashboards** — Replace polling with WebSocket push for truly real-time admin dashboard updates
+- **Message queue** — Replace in-process events with Redis/Kafka for cross-instance event distribution
 - **Rate limiting & usage quotas** — Prevent abuse per user
 - **Advanced PII redaction** — ML-based detection, pattern learning
 - **Multi-region deployment** — Edge-optimized ingestion endpoints
