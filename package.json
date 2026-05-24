@@ -28,7 +28,7 @@
     "analyze": "next build && next experimental-analyze",
     "analyze:output": "next build && next experimental-analyze --output",
     "lighthouse": "npx lhci autorun",
-    "prepare": "husky"
+    "prepare": "node -e \"try { require('child_process').execSync('husky', { stdio: 'inherit' }) } catch { }\""
   },
   "lint-staged": {
     "src/**/*.{ts,tsx,js,jsx}": [
