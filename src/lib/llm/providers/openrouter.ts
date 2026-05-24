@@ -64,7 +64,6 @@ export class OpenRouterProvider implements LLMProvider {
   }
 
   async *generateStream(req: LLMRequest): AsyncGenerator<LLMStreamEvent> {
-    const start = Date.now();
     try {
       const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",

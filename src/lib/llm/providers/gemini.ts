@@ -61,7 +61,6 @@ export class GeminiProvider implements LLMProvider {
   }
 
   async *generateStream(req: LLMRequest): AsyncGenerator<LLMStreamEvent> {
-    const start = Date.now();
     try {
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1/models/${req.model}:streamGenerateContent?key=${this.apiKey}&alt=sse`,

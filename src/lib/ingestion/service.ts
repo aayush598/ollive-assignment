@@ -151,7 +151,6 @@ export async function getInferenceStats(options?: {
   provider?: string;
   since?: Date;
 }): Promise<DashboardStats> {
-  const since = options?.since ?? new Date(Date.now() - 3600000);
   const since5m = new Date(Date.now() - 300000);
 
   function andConditions(parts: SQL[]): SQL {

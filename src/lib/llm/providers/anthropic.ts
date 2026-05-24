@@ -61,7 +61,6 @@ export class AnthropicProvider implements LLMProvider {
   }
 
   async *generateStream(req: LLMRequest): AsyncGenerator<LLMStreamEvent> {
-    const start = Date.now();
     try {
       const systemMsg = req.messages.find((m) => m.role === "system");
       const otherMessages = req.messages.filter((m) => m.role !== "system");

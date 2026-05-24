@@ -89,6 +89,7 @@ describe("processIngestBatch", () => {
     const dbModule = await import("@/lib/db");
     vi.mocked(dbModule.db.insert).mockReturnValueOnce({
       values: vi.fn().mockRejectedValue(new Error("DB write failed")),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { processIngestBatch } = await import("@/lib/ingestion/service");
@@ -177,6 +178,7 @@ describe("ingestion API stats", () => {
 
     vi.mocked(dbModule.db.execute).mockResolvedValue([
       { count: 10, total_tokens: 500, avg_latency: 200, p95_latency: 800, success: 8, error: 1, cancelled: 1 },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any);
 
     const mockSelectChain = {
@@ -185,9 +187,11 @@ describe("ingestion API stats", () => {
       orderBy: vi.fn().mockReturnThis(),
       limit: vi.fn().mockResolvedValue([]),
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     vi.mocked(dbModule.db.select).mockReturnValue(mockSelectChain as any);
 
     const mod = await import("@/app/api/ingest/route");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const req = new Request("http://localhost:3000/api/ingest?stats=true") as any;
     const response = await mod.GET(req);
     const data = await response.json();

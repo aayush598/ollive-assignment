@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
@@ -14,11 +14,7 @@ export default function ConversationsPage() {
   const [loading, setLoading] = useState(true);
   const { setMessages, setCurrentConversation } = useChatStore();
 
-  useEffect(() => {
-    loadConversations();
-  }, []);
-
-  async function loadConversations() {
+  const loadConversations = useCallback(async () => {
     setLoading(true);
     try {
       const session = await authClient.getSession();
@@ -37,7 +33,12 @@ export default function ConversationsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [router]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadConversations();
+  }, [loadConversations]);
 
   async function handleCancel(id: string) {
     await fetch(`/api/conversations/${id}/cancel`, { method: "POST" });

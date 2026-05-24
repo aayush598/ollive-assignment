@@ -58,7 +58,6 @@ export class OpenAIProvider implements LLMProvider {
   }
 
   async *generateStream(req: LLMRequest): AsyncGenerator<LLMStreamEvent> {
-    const start = Date.now();
     try {
       const res = await fetch("https://api.openai.com/v1/chat/completions", {
         method: "POST",

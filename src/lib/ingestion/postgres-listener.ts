@@ -1,6 +1,5 @@
 import { sql } from "drizzle-orm";
 import { db } from "../db";
-import { ingestionEvents } from "./events";
 
 let listening = false;
 
@@ -18,7 +17,7 @@ export async function startIngestionListener() {
     // In a production deployment with a direct Postgres connection (not pooled),
     // this would process NOTIFY payloads as they arrive.
     // For now, the in-process EventEmitter handles real-time event distribution.
-  } catch (err) {
+  } catch {
     console.debug("[ingestion-listener] Postgres LISTEN/NOTIFY not supported in this driver, falling back to in-process events");
   }
 }

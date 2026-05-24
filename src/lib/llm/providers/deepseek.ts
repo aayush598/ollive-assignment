@@ -57,7 +57,6 @@ export class DeepSeekProvider implements LLMProvider {
   }
 
   async *generateStream(req: LLMRequest): AsyncGenerator<LLMStreamEvent> {
-    const start = Date.now();
     try {
       const res = await fetch("https://api.deepseek.com/v1/chat/completions", {
         method: "POST",
