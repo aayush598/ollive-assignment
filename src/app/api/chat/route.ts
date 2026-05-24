@@ -20,7 +20,7 @@ const ChatRequestSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    const { allowed } = rateLimit(getRateLimitKey(ip, "chat"), {
+    const { allowed } = await rateLimit(getRateLimitKey(ip, "chat"), {
       maxRequests: 30,
       windowMs: 60000,
     });

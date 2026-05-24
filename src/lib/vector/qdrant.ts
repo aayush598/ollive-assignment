@@ -38,11 +38,11 @@ async function ensureCollectionExists(client: QdrantClient): Promise<void> {
 
   await client.createCollection(COLLECTION_NAME, {
     vectors: { size: VECTOR_SIZE, distance: "Cosine" },
-    optimizersConfig: {
-      defaultSegmentNumber: 2,
-      indexingThreshold: 0,
+    optimizers_config: {
+      default_segment_number: 2,
+      indexing_threshold: 0,
     },
-    onDiskPayload: true,
+    on_disk_payload: true,
   });
 
   // Give Qdrant a moment to recognize the new collection
@@ -64,7 +64,7 @@ async function ensureIndexesExist(client: QdrantClient): Promise<void> {
   for (const idx of REQUIRED_INDEXES) {
     if (!existingIndexes.includes(idx.field_name)) {
       try {
-        await client.createPayloadIndex(COLLECTION_NAME, idx);
+        await client.createPayloadIndex(COLLECTION_NAME, idx as never);
         console.debug(`[qdrant] Created payload index "${idx.field_name}"`);
       } catch (err) {
         // createPayloadIndex is idempotent; ignore if already exists

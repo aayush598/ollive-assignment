@@ -2,26 +2,26 @@ import { describe, it, expect } from "vitest";
 import { rateLimit, getRateLimitKey } from "../rate-limit";
 
 describe("rateLimit", () => {
-  it("should allow requests under the limit", () => {
-    const result = rateLimit("test-1", { maxRequests: 5, windowMs: 60000 });
+  it("should allow requests under the limit", async () => {
+    const result = await rateLimit("test-1", { maxRequests: 5, windowMs: 60000 });
     expect(result.allowed).toBe(true);
     expect(result.remaining).toBe(4);
   });
 
-  it("should block requests over the limit", () => {
+  it("should block requests over the limit", async () => {
     const key = "test-block";
     for (let i = 0; i < 3; i++) {
-      rateLimit(key, { maxRequests: 3, windowMs: 60000 });
+      await rateLimit(key, { maxRequests: 3, windowMs: 60000 });
     }
-    const result = rateLimit(key, { maxRequests: 3, windowMs: 60000 });
+    const result = await rateLimit(key, { maxRequests: 3, windowMs: 60000 });
     expect(result.allowed).toBe(false);
     expect(result.remaining).toBe(0);
   });
 
-  it("should track remaining count", () => {
+  it("should track remaining count", async () => {
     const key = "test-remaining";
-    rateLimit(key, { maxRequests: 10, windowMs: 60000 });
-    const result = rateLimit(key, { maxRequests: 10, windowMs: 60000 });
+    await rateLimit(key, { maxRequests: 10, windowMs: 60000 });
+    const result = await rateLimit(key, { maxRequests: 10, windowMs: 60000 });
     expect(result.remaining).toBe(8);
   });
 

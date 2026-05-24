@@ -82,7 +82,7 @@ async function setupConversation(
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    const { allowed, remaining } = rateLimit(getRateLimitKey(ip, "chat:stream"), {
+    const { allowed, remaining } = await rateLimit(getRateLimitKey(ip, "chat:stream"), {
       maxRequests: 20,
       windowMs: 60000,
     });
@@ -103,7 +103,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { conversationId, message, model, provider } = parsed.data;
+    const { conversationId: rawConversationId, message, model, provider } = parsed.data;
+    const conversationId = rawConversationId ?? undefined;
 
     const resolvedModel = model ?? llmRegistry.getDefaultModel(provider);
     const llmProvider = llmRegistry.get(provider ?? llmRegistry.getDefault().name);

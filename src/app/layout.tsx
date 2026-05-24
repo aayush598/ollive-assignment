@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { AnalyticsTracker } from "@/components/analytics-tracker";
+import { PwaRegister } from "@/components/pwa-register";
+import { WebVitals } from "@/lib/web-vitals";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,9 +16,68 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
-  title: "LLM Inference Logger",
-  description: "Lightweight inference logging and ingestion system for LLM applications",
+  title: {
+    default: "LLM Inference Logger",
+    template: "%s | LLM Inference Logger",
+  },
+  description:
+    "Lightweight inference logging and ingestion system for LLM applications. Track, monitor, and analyze your LLM API calls.",
+  keywords: [
+    "LLM",
+    "inference",
+    "logging",
+    "monitoring",
+    "AI",
+    "machine learning",
+    "observability",
+  ],
+  authors: [{ name: "LLM Inference Logger" }],
+  creator: "LLM Inference Logger",
+  publisher: "LLM Inference Logger",
+  metadataBase: new URL(baseUrl),
+  openGraph: {
+    title: "LLM Inference Logger",
+    description: "Lightweight inference logging and ingestion system for LLM applications.",
+    url: baseUrl,
+    siteName: "LLM Inference Logger",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LLM Inference Logger",
+    description: "Lightweight inference logging and ingestion system for LLM applications.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/icons/icon-192.svg",
+    apple: "/icons/icon-192.svg",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "LLM Logger",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export default function RootLayout({
@@ -25,8 +87,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+      <head>
+        <meta name="application-name" content="LLM Logger" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="LLM Logger" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+      </head>
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+          <AnalyticsTracker />
+          <WebVitals />
+          <PwaRegister />
+        </Providers>
       </body>
     </html>
   );

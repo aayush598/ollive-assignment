@@ -1,0 +1,160 @@
+{
+  "__inputs": [],
+  "__requires": [],
+  "title": "LLM Inference Logger - Overview",
+  "uid": "llm-inference-overview",
+  "version": 1,
+  "schemaVersion": 39,
+  "tags": ["llm", "inference", "nextjs"],
+  "timezone": "browser",
+  "editable": false,
+  "panels": [
+    {
+      "title": "HTTP Requests",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 4, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[5m]))",
+          "legendFormat": "Requests/sec"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green" }] }
+        }
+      }
+    },
+    {
+      "title": "Error Rate",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 4, "x": 4, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_errors_total[5m]))",
+          "legendFormat": "Errors/sec"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "title": "Active Sessions",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 4, "x": 8, "y": 0 },
+      "targets": [
+        {
+          "expr": "active_sessions_total",
+          "legendFormat": "Sessions"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" }
+    },
+    {
+      "title": "HTTP Request Duration (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_ms_bucket[5m])) by (le))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_ms_bucket[5m])) by (le))",
+          "legendFormat": "p50"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "title": "HTTP Request Rate by Route",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_requests_total[5m])) by (route)",
+          "legendFormat": "{{ route }}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" }
+    },
+    {
+      "title": "LLM Inferences",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 4, "x": 0, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(llm_inferences_total[5m]))",
+          "legendFormat": "Inferences/sec"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" }
+    },
+    {
+      "title": "LLM Inference Latency (p95)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 4, "y": 16 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(llm_inference_latency_ms_bucket[5m])) by (le, provider))",
+          "legendFormat": "{{ provider }} p95"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" },
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "title": "Token Usage",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 12, "y": 16 },
+      "targets": [
+        {
+          "expr": "sum(rate(llm_inference_tokens_sum[5m])) by (provider)",
+          "legendFormat": "{{ provider }}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" },
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+    {
+      "title": "Error Events by Severity",
+      "type": "piechart",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 24 },
+      "targets": [
+        {
+          "expr": "sum(error_events_total) by (severity)",
+          "legendFormat": "{{ severity }}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "P1809F7CD0C75ACF3" }
+    },
+    {
+      "title": "Recent Logs",
+      "type": "logs",
+      "gridPos": { "h": 12, "w": 16, "x": 0, "y": 32 },
+      "targets": [
+        {
+          "expr": "{service=\"llm-inference-logger\"} |= ``",
+          "legendFormat": ""
+        }
+      ],
+      "datasource": { "type": "loki", "uid": "Loki" }
+    }
+  ]
+}

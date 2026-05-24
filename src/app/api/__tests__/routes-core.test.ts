@@ -226,9 +226,9 @@ describe("rate limit", () => {
     const { rateLimit } = await import("@/lib/rate-limit");
     const key = "test-" + Date.now();
     for (let i = 0; i < 3; i++) {
-      rateLimit(key, { maxRequests: 3, windowMs: 60000 });
+      await rateLimit(key, { maxRequests: 3, windowMs: 60000 });
     }
-    const result = rateLimit(key, { maxRequests: 3, windowMs: 60000 });
+    const result = await rateLimit(key, { maxRequests: 3, windowMs: 60000 });
     expect(result.allowed).toBe(false);
     expect(result.remaining).toBe(0);
   });
@@ -237,7 +237,7 @@ describe("rate limit", () => {
     const { rateLimit } = await import("@/lib/rate-limit");
     const key = "test-within-" + Date.now();
     for (let i = 0; i < 3; i++) {
-      const result = rateLimit(key, { maxRequests: 5, windowMs: 60000 });
+      const result = await rateLimit(key, { maxRequests: 5, windowMs: 60000 });
       expect(result.allowed).toBe(true);
     }
   });

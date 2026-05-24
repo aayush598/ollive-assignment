@@ -105,7 +105,7 @@ describe("ensureCollection", () => {
           ];
 
           for (const idx of requiredIndexes) {
-            if (!existingIndexes.includes(idx.fieldName)) {
+            if (!existingIndexes.includes(idx.field_name)) {
               await client.createPayloadIndex("conversation_context", idx);
             }
           }

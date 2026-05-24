@@ -48,7 +48,7 @@ export async function storeConversationTurn(entry: ContextEntry): Promise<void> 
 }
 
 function formatContextSections(
-  points: Array<{ score?: number; payload?: Record<string, unknown> }>,
+  points: Array<{ score?: number; payload?: Record<string, unknown> | null }>,
 ): string | null {
   const sections = points.map((p) => {
     const payload = p.payload ?? {};
@@ -104,11 +104,17 @@ export async function retrieveRelevantContext(
       if (userPoints.length === 0) return null;
       return formatContextSections(userPoints);
     } catch (error) {
-      console.debug("[context] Qdrant query failed:", error.message);
+      console.debug(
+        "[context] Qdrant query failed:",
+        error instanceof Error ? error.message : error,
+      );
       return null;
     }
   } catch (error) {
-    console.debug("[context] Failed to retrieve context:", error);
+    console.debug(
+      "[context] Failed to retrieve context:",
+      error instanceof Error ? error.message : error,
+    );
     return null;
   }
 }

@@ -135,3 +135,54 @@ export const inferenceLogs = pgTable(
     index("log_session_id_idx").on(table.sessionId),
   ],
 );
+
+export const errorSeverity = ["critical", "error", "warning", "info"] as const;
+export type ErrorSeverity = (typeof errorSeverity)[number];
+
+export const errorEvents = pgTable(
+  "error_events",
+  {
+    id: text("id").primaryKey(),
+    message: text("message").notNull(),
+    code: text("code").notNull().default("UNEXPECTED_ERROR"),
+    severity: text("severity").notNull().$type<ErrorSeverity>().default("error"),
+    stack: text("stack"),
+    route: text("route"),
+    method: text("method"),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    metadata: jsonb("metadata"),
+    digest: text("digest"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("err_severity_idx").on(table.severity),
+    index("err_code_idx").on(table.code),
+    index("err_route_idx").on(table.route),
+    index("err_user_id_idx").on(table.userId),
+    index("err_created_idx").on(table.createdAt),
+  ],
+);
+
+export const analyticsEvents = pgTable(
+  "analytics_events",
+  {
+    id: text("id").primaryKey(),
+    type: text("type").notNull(),
+    sessionId: text("session_id"),
+    deviceId: text("device_id"),
+    userId: text("user_id").references(() => user.id, { onDelete: "set null" }),
+    url: text("url"),
+    path: text("path"),
+    referrer: text("referrer"),
+    userAgent: text("user_agent"),
+    data: jsonb("data"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("ae_type_idx").on(table.type),
+    index("ae_session_id_idx").on(table.sessionId),
+    index("ae_user_id_idx").on(table.userId),
+    index("ae_created_idx").on(table.createdAt),
+    index("ae_path_idx").on(table.path),
+  ],
+);

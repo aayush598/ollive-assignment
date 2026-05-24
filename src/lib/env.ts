@@ -19,6 +19,9 @@ const envSchema = z.object({
   DEFAULT_LLM_MODEL: z.string().default("minimaxai/minimax-m2.7"),
   QDRANT_URL: z.string().url().optional(),
   QDRANT_API_KEY: z.string().optional(),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+  ENABLE_METRICS: z.coerce.boolean().default(true),
+  SENTRY_DSN: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
@@ -46,6 +49,9 @@ function createEnv() {
       DEFAULT_LLM_MODEL: "minimaxai/minimax-m2.7",
       QDRANT_URL: process.env.QDRANT_URL,
       QDRANT_API_KEY: process.env.QDRANT_API_KEY,
+      LOG_LEVEL: (process.env.LOG_LEVEL as "info") ?? "info",
+      ENABLE_METRICS: process.env.ENABLE_METRICS !== "false",
+      SENTRY_DSN: process.env.SENTRY_DSN,
     });
   }
   return parsed.data;
