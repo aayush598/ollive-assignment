@@ -8,5 +8,12 @@ export async function register() {
     } catch {
       // listener fallback is handled internally
     }
+
+    try {
+      const { ensureCollection } = await import("./lib/vector/qdrant");
+      await ensureCollection();
+    } catch {
+      console.debug("[instrumentation] Qdrant not available, skipping collection init");
+    }
   }
 }

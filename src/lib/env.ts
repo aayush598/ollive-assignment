@@ -14,7 +14,9 @@ const envSchema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   DEFAULT_LLM_PROVIDER: z.enum(["openai", "anthropic", "gemini", "deepseek", "openrouter", "nvidia"]).default("nvidia"),
-  DEFAULT_LLM_MODEL: z.string().default("google/gemma-4-31b-it"),
+  DEFAULT_LLM_MODEL: z.string().default("minimaxai/minimax-m2.7"),
+  QDRANT_URL: z.string().url().optional(),
+  QDRANT_API_KEY: z.string().optional(),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
@@ -34,7 +36,9 @@ function createEnv() {
       GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
       GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
       DEFAULT_LLM_PROVIDER: "nvidia",
-      DEFAULT_LLM_MODEL: "nvidia/llama-3.1-nemotron-70b-instruct",
+      DEFAULT_LLM_MODEL: "minimaxai/minimax-m2.7",
+      QDRANT_URL: process.env.QDRANT_URL,
+      QDRANT_API_KEY: process.env.QDRANT_API_KEY,
     });
   }
   return parsed.data;

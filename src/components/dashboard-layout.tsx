@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { authClient } from "@/lib/auth/client";
 import { useRouter } from "next/navigation";
 
@@ -10,6 +10,15 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    authClient.getSession().then((session) => {
+      if (session.data?.user?.name) {
+        setUserName(session.data.user.name);
+      }
+    });
+  }, []);
 
   const navItems = [
     { href: "/chat", label: "Chat", icon: "💬" },
@@ -58,7 +67,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-blue-700">U</span>
+                  <span className="text-xs font-medium text-blue-700">{userName ? userName.charAt(0).toUpperCase() : "?"}</span>
                 </div>
               </button>
               {showMenu && (

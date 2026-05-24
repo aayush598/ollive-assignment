@@ -1,6 +1,20 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { authClient } from "@/lib/auth/client";
 
 export default function HomePage() {
+  const [session, setSession] = useState<{ user: { name?: string; email?: string } } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    authClient.getSession().then((res) => {
+      setSession(res.data);
+      setLoading(false);
+    });
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col">
       <header className="border-b border-gray-200 bg-white">
@@ -12,18 +26,31 @@ export default function HomePage() {
             <span className="font-semibold text-lg">LLM Inference Logger</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-            >
-              Sign in
-            </Link>
-            <Link
-              href="/register"
-              className="text-sm font-medium px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Get Started
-            </Link>
+            {loading ? (
+              <div className="h-5 w-20 bg-gray-200 rounded animate-pulse" />
+            ) : session ? (
+              <Link
+                href="/chat"
+                className="text-sm font-medium px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-sm font-medium px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -40,18 +67,29 @@ export default function HomePage() {
               inference metadata. Built with Next.js, TypeScript, and modern best practices.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
-              <Link
-                href="/register"
-                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Start Chatting
-              </Link>
-              <Link
-                href="/login"
-                className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Sign In
-              </Link>
+              {session ? (
+                <Link
+                  href="/chat"
+                  className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Go to Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/register"
+                    className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Start Chatting
+                  </Link>
+                  <Link
+                    href="/login"
+                    className="px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Sign In
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </section>

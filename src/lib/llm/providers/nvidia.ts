@@ -8,6 +8,7 @@ export class NVIDIAProvider implements LLMProvider {
     "nvidia/llama-3.1-nemotron-ultra-253b-v1",
     "mistralai/mistral-large-24-07",
     "meta/llama-3.1-70b-instruct",
+    "minimaxai/minimax-m2.7",
   ];
 
   private apiKey: string;

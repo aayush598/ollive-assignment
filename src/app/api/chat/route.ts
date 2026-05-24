@@ -8,10 +8,11 @@ import { insertInferenceLog } from "@/lib/db/inference";
 import { requireAuth } from "@/lib/auth/api";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 import { z } from "zod";
+import { augmentMessagesWithContext, storeConversationTurn } from "@/lib/vector/context";
 
 const ChatRequestSchema = z.object({
-  conversationId: z.string().optional(),
-  message: z.string().min(1).max(10000).trim(),
+  conversationId: z.string().nullish(),
+  message: z.string().trim().min(1).max(10000),
   model: z.string().optional(),
   provider: z.string().optional(),
 });
@@ -93,8 +94,13 @@ export async function POST(req: NextRequest) {
     const llmProvider = llmRegistry.get(provider ?? llmRegistry.getDefault().name);
     const llmModel = model ?? llmRegistry.getDefaultModel(provider);
 
+    const isFirstMessage = llmMessages.length <= 1;
+    const augmentedMessages = await augmentMessagesWithContext(
+      session.user.id, message, llmMessages, isFirstMessage,
+    );
+
     const response = await llmProvider.generate({
-      messages: llmMessages,
+      messages: augmentedMessages,
       model: llmModel,
       conversationId: convId,
       userId: session.user.id,
@@ -123,6 +129,16 @@ export async function POST(req: NextRequest) {
       response,
       { conversationId: convId, userId: session.user.id, messageId: assistantMsgId },
     );
+
+    await storeConversationTurn({
+      userId: session.user.id,
+      conversationId: convId,
+      userMessage: message,
+      assistantMessage: response.content,
+      model: llmModel,
+      provider: llmProvider.name,
+      timestamp: Date.now(),
+    });
 
     return NextResponse.json({
       conversationId: convId,

@@ -21,6 +21,7 @@
   "dependencies": {
     "@better-auth/drizzle-adapter": "^1.6.11",
     "@hookform/resolvers": "^5.4.0",
+    "@qdrant/js-client-rest": "^1.18.0",
     "better-auth": "^1.6.11",
     "date-fns": "^4.2.1",
     "drizzle-orm": "^0.45.2",

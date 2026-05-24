@@ -81,6 +81,16 @@ spec:
                 configMapKeyRef:
                   name: llm-logger-config
                   key: DEFAULT_LLM_PROVIDER
+            - name: QDRANT_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-logger-config
+                  key: QDRANT_URL
+            - name: QDRANT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: qdrant-api-key
           resources:
             requests:
               memory: "256Mi"

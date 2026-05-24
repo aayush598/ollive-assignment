@@ -27,7 +27,7 @@ describe("createEnv", () => {
 
     const { env } = await import("../env");
     expect(env.DEFAULT_LLM_PROVIDER).toBe("nvidia");
-    expect(env.DEFAULT_LLM_MODEL).toBe("google/gemma-4-31b-it");
+    expect(env.DEFAULT_LLM_MODEL).toBe("minimaxai/minimax-m2.7");
   });
 
   it("should apply NEXT_PUBLIC_APP_URL default", async () => {

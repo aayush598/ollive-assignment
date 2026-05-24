@@ -8,10 +8,11 @@ import { insertInferenceLog } from "@/lib/db/inference";
 import { requireAuth } from "@/lib/auth/api";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 import { z } from "zod";
+import { augmentMessagesWithContext, storeConversationTurn } from "@/lib/vector/context";
 
 const ChatRequestSchema = z.object({
-  conversationId: z.string().optional(),
-  message: z.string().min(1).max(10000).trim(),
+  conversationId: z.string().nullish(),
+  message: z.string().trim().min(1).max(10000),
   model: z.string().optional(),
   provider: z.string().optional(),
 });
@@ -103,6 +104,11 @@ export async function POST(req: NextRequest) {
       session, conversationId, message, resolvedModel, provider,
     );
 
+    const isFirstMessage = llmMessages.length <= 1;
+    const augmentedMessages = await augmentMessagesWithContext(
+      session.user.id, message, llmMessages, isFirstMessage,
+    );
+
     let fullContent = "";
     let usage = { promptTokens: 0, completionTokens: 0, totalTokens: 0 };
     const startTime = Date.now();
@@ -116,7 +122,7 @@ export async function POST(req: NextRequest) {
 
         try {
           const gen = llmProvider.generateStream({
-            messages: llmMessages,
+            messages: augmentedMessages,
             model: resolvedModel,
             conversationId: convId,
             userId: session.user.id,
@@ -166,6 +172,16 @@ export async function POST(req: NextRequest) {
               updatedAt: new Date(),
             })
             .where(eq(schema.conversations.id, convId));
+
+          await storeConversationTurn({
+            userId: session.user.id,
+            conversationId: convId,
+            userMessage: message,
+            assistantMessage: fullContent,
+            model: resolvedModel,
+            provider: llmProvider.name,
+            timestamp: Date.now(),
+          });
         } catch (error) {
           if (!req.signal.aborted) {
             send(JSON.stringify({ type: "error", error: error instanceof Error ? error.message : "Stream error" }));
