@@ -147,12 +147,14 @@ docker compose -f docker/docker-compose.yml up -d
 | **Email/password auth only** | Simple but fewer sign-in options |
 | **SDK flush interval (5s)** | Near real-time without excessive HTTP calls |
 | **JSONB metadata** | Flexible but not individually indexable |
+| **In-memory rate limiting** | Simple but resets on server restart |
+| **In-process EventEmitter** | No cross-instance event distribution without Redis |
 
 ## What I Would Improve
 
 - **WebSocket dashboards** — Replace polling with WebSocket push for truly real-time admin dashboard updates
 - **Message queue** — Replace in-process events with Redis/Kafka for cross-instance event distribution
-- **Rate limiting & usage quotas** — Prevent abuse per user
+- **Rate limiting & usage quotas** — Persistent rate limiting with Redis (current in-memory resets on restart)
 - **Advanced PII redaction** — ML-based detection, pattern learning
 - **Multi-region deployment** — Edge-optimized ingestion endpoints
 - **Caching** — Redis for conversation context, response caching
@@ -163,6 +165,8 @@ docker compose -f docker/docker-compose.yml up -d
 - **Admin dashboard** — User management, API key rotation
 - **Data retention policies** — Automated log archival/cleanup
 - **OpenTelemetry integration** — Distributed tracing across services
+- **End-to-end tests** — Playwright or Cypress for UI testing
+- **File upload support** — Multi-modal chat with images/documents
 
 ## Testing
 

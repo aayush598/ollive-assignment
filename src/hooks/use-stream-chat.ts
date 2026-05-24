@@ -11,6 +11,7 @@ export function useStreamChat() {
   const {
     addMessage,
     setStreamingContent,
+    setCurrentConversation,
     setError,
   } = useChatStore();
 
@@ -79,6 +80,9 @@ export function useStreamChat() {
                 content: fullContentRef.current,
               });
               setStreamingContent("");
+              if (event.conversationId) {
+                setCurrentConversation(event.conversationId);
+              }
             } else if (event.type === "error") {
               throw new Error(event.error);
             }
@@ -95,7 +99,7 @@ export function useStreamChat() {
       setIsStreamingLocal(false);
       abortRef.current = null;
     }
-  }, [isStreaming, addMessage, setStreamingContent, setError]);
+  }, [isStreaming, addMessage, setStreamingContent, setCurrentConversation, setError]);
 
   return {
     sendMessage,

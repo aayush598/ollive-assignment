@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { processIngestBatch, getInferenceLogs, getInferenceStats } from "@/lib/ingestion/service";
 import { requireAuth } from "@/lib/auth/api";
+import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
+    const { allowed } = rateLimit(getRateLimitKey(ip, "ingest"), { maxRequests: 120, windowMs: 60000 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     await requireAuth();
     const body = await req.json();
     const result = await processIngestBatch(body);

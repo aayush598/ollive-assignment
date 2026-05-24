@@ -6,6 +6,15 @@ import * as schema from "@/lib/db/schema";
 import { llmRegistry } from "@/lib/llm/registry";
 import { insertInferenceLog } from "@/lib/db/inference";
 import { requireAuth } from "@/lib/auth/api";
+import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
+import { z } from "zod";
+
+const ChatRequestSchema = z.object({
+  conversationId: z.string().optional(),
+  message: z.string().min(1).max(10000).trim(),
+  model: z.string().optional(),
+  provider: z.string().optional(),
+});
 
 async function setupConversation(
   session: { user: { id: string } },
@@ -71,13 +80,21 @@ async function setupConversation(
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
+    const { allowed, remaining } = rateLimit(getRateLimitKey(ip, "chat:stream"), { maxRequests: 20, windowMs: 60000 });
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Too many requests", remaining }), { status: 429 });
+    }
+
     const session = await requireAuth();
     const body = await req.json();
-    const { conversationId, message, model, provider } = body;
 
-    if (!message?.trim()) {
-      return new Response(JSON.stringify({ error: "Message is required" }), { status: 400 });
+    const parsed = ChatRequestSchema.safeParse(body);
+    if (!parsed.success) {
+      return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.issues }), { status: 400 });
     }
+
+    const { conversationId, message, model, provider } = parsed.data;
 
     const resolvedModel = model ?? llmRegistry.getDefaultModel(provider);
     const llmProvider = llmRegistry.get(provider ?? llmRegistry.getDefault().name);
@@ -113,7 +130,7 @@ export async function POST(req: NextRequest) {
               send(JSON.stringify({ type: "chunk", content: event.content }));
             } else if (event.type === "done") {
               usage = event.usage;
-              send(JSON.stringify({ type: "done", usage: event.usage }));
+              send(JSON.stringify({ type: "done", usage: event.usage, conversationId: convId }));
             } else if (event.type === "error") {
               send(JSON.stringify({ type: "error", error: event.error }));
               controller.close();

@@ -6,16 +6,33 @@ import * as schema from "@/lib/db/schema";
 import { llmRegistry } from "@/lib/llm/registry";
 import { insertInferenceLog } from "@/lib/db/inference";
 import { requireAuth } from "@/lib/auth/api";
+import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
+import { z } from "zod";
+
+const ChatRequestSchema = z.object({
+  conversationId: z.string().optional(),
+  message: z.string().min(1).max(10000).trim(),
+  model: z.string().optional(),
+  provider: z.string().optional(),
+});
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
+    const { allowed } = rateLimit(getRateLimitKey(ip, "chat"), { maxRequests: 30, windowMs: 60000 });
+    if (!allowed) {
+      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    }
+
     const session = await requireAuth();
     const body = await req.json();
-    const { conversationId, message, model, provider } = body;
 
-    if (!message?.trim()) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
+    const parsed = ChatRequestSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: "Invalid request", details: parsed.error.issues }, { status: 400 });
     }
+
+    const { conversationId, message, model, provider } = parsed.data;
 
     let convId = conversationId;
 

@@ -13,21 +13,6 @@ jobs:
   lint:
     name: Lint & Type Check
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: llmchat
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
 
@@ -53,21 +38,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:16-alpine
-        env:
-          POSTGRES_DB: llmchat
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
 
@@ -82,10 +52,6 @@ jobs:
 
       - name: Run tests
         run: npm test
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/llmchat
-          BETTER_AUTH_SECRET: test-secret-key-at-least-thirty-two-chars
-          BETTER_AUTH_URL: http://localhost:3000
 
   build:
     name: Build
@@ -127,3 +93,7 @@ jobs:
           tags: llm-inference-logger:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            DATABASE_URL=postgres://postgres:postgres@localhost:5432/llmchat
+            BETTER_AUTH_SECRET=test-secret-key-at-least-thirty-two-chars
+            BETTER_AUTH_URL=http://localhost:3000

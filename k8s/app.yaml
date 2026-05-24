@@ -1,0 +1,123 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-logger-app
+  namespace: llm-inference-logger
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: llm-logger-app
+  template:
+    metadata:
+      labels:
+        app: llm-logger-app
+    spec:
+      containers:
+        - name: app
+          image: llm-inference-logger:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: database-url
+            - name: BETTER_AUTH_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: better-auth-secret
+            - name: BETTER_AUTH_URL
+              value: https://llm-logger.example.com
+            - name: NEXT_PUBLIC_APP_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-logger-config
+                  key: NEXT_PUBLIC_APP_URL
+            - name: NEXT_PUBLIC_BETTER_AUTH_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-logger-config
+                  key: NEXT_PUBLIC_APP_URL
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: openai-api-key
+            - name: ANTHROPIC_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: anthropic-api-key
+            - name: GEMINI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: gemini-api-key
+            - name: DEEPSEEK_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: deepseek-api-key
+            - name: NVIDIA_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: nvidia-api-key
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: llm-logger-secrets
+                  key: openrouter-api-key
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-logger-config
+                  key: NODE_ENV
+            - name: DEFAULT_LLM_PROVIDER
+              valueFrom:
+                configMapKeyRef:
+                  name: llm-logger-config
+                  key: DEFAULT_LLM_PROVIDER
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: llm-logger-app
+  namespace: llm-inference-logger
+spec:
+  selector:
+    app: llm-logger-app
+  ports:
+    - port: 3000
+      targetPort: 3000
+  type: ClusterIP
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: llm-logger-app
+  namespace: llm-inference-logger
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: llm-logger-app
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

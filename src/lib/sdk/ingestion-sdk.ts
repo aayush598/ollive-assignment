@@ -1,8 +1,6 @@
-import { v4 as uuid } from "uuid";
 import type { InferenceLog, LLMResponse, LLMRequest } from "../llm/types";
 import { InferenceLogSchema } from "../llm/types";
 import { redactPII } from "../pii/redactor";
-import { env } from "../env";
 
 export interface SDKConfig {
   ingestEndpoint: string;

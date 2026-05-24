@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { sql, eq, and } from "drizzle-orm";
+import { sql, eq, and, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import * as schema from "../db/schema";
 import { InferenceLogSchema, type InferenceLog } from "../llm/types";
@@ -154,15 +154,31 @@ export async function getInferenceStats(options?: {
   const since = options?.since ?? new Date(Date.now() - 3600000);
   const since5m = new Date(Date.now() - 300000);
 
-  const [total] = await db.execute<{ count: number; total_tokens: number; avg_latency: number; success: number; error: number; cancelled: number }>(sql`
+  function andConditions(parts: SQL[]): SQL {
+    return sql.join(parts, sql` AND `);
+  }
+
+  const filters: SQL[] = [];
+  if (options?.userId) filters.push(sql`user_id = ${options.userId}`);
+  if (options?.provider) filters.push(sql`provider = ${options.provider}`);
+
+  const whereClause = filters.length > 0 ? sql`WHERE ${andConditions(filters)}` : sql``;
+  const p95SubClause = filters.length > 0 ? sql`AND ${andConditions(filters)}` : sql``;
+
+  const [total] = await db.execute<{ count: number; total_tokens: number; avg_latency: number; p95_latency: number; success: number; error: number; cancelled: number }>(sql`
     SELECT
       COUNT(*)::int as count,
       COALESCE(SUM(total_tokens), 0)::int as total_tokens,
       COALESCE(AVG(latency_ms), 0)::int as avg_latency,
+      COALESCE(
+        (SELECT percentile_cont(0.95) WITHIN GROUP (ORDER BY latency_ms) FROM inference_logs WHERE latency_ms IS NOT NULL ${p95SubClause}),
+        0
+      )::int as p95_latency,
       COALESCE(SUM(CASE WHEN status = 'success' THEN 1 ELSE 0 END), 0)::int as success,
       COALESCE(SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END), 0)::int as error,
       COALESCE(SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END), 0)::int as cancelled
     FROM inference_logs
+    ${whereClause}
   `);
 
   const [recent] = await db.execute<{ requests: number; tokens: number }>(sql`
@@ -171,6 +187,7 @@ export async function getInferenceStats(options?: {
       COALESCE(SUM(total_tokens), 0)::int as tokens
     FROM inference_logs
     WHERE created_at >= ${since5m.toISOString()}
+    ${filters.length > 0 ? sql`AND ${andConditions(filters)}` : sql``}
   `);
 
   const perProvider = await db.execute<{ provider: string; count: number; total_tokens: number; avg_latency: number; errors: number }>(sql`
@@ -181,11 +198,12 @@ export async function getInferenceStats(options?: {
       COALESCE(AVG(latency_ms), 0)::int as avg_latency,
       COALESCE(SUM(CASE WHEN status = 'error' THEN 1 ELSE 0 END), 0)::int as errors
     FROM inference_logs
+    ${whereClause}
     GROUP BY provider
     ORDER BY count DESC
   `);
 
-  const recentErrors = await db
+  const recentErrorsQuery = db
     .select({
       id: schema.inferenceLogs.id,
       provider: schema.inferenceLogs.provider,
@@ -194,9 +212,16 @@ export async function getInferenceStats(options?: {
       createdAt: schema.inferenceLogs.createdAt,
     })
     .from(schema.inferenceLogs)
-    .where(eq(schema.inferenceLogs.status, "error"))
+    .where(
+      and(
+        eq(schema.inferenceLogs.status, "error"),
+        options?.userId ? eq(schema.inferenceLogs.userId, options.userId) : sql`1=1`,
+      ),
+    )
     .orderBy(sql`created_at DESC`)
     .limit(10);
+
+  const recentErrors = await recentErrorsQuery;
 
   const totalRequests = total?.count ?? 0;
   const totalErrors = total?.error ?? 0;
@@ -205,7 +230,7 @@ export async function getInferenceStats(options?: {
     totalRequests,
     totalTokens: total?.total_tokens ?? 0,
     averageLatencyMs: total?.avg_latency ?? 0,
-    p95LatencyMs: 0,
+    p95LatencyMs: total?.p95_latency ?? 0,
     successCount: total?.success ?? 0,
     errorCount: total?.error ?? 0,
     cancelledCount: total?.cancelled ?? 0,

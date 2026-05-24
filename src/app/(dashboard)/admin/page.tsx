@@ -52,19 +52,25 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
-    loadStats();
-  }, [refresh]);
+    let cancelled = false;
 
-  async function loadStats() {
-    try {
-      const res = await fetch("/api/admin/stats");
-      if (res.ok) setStats(await res.json());
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
+    async function load() {
+      try {
+        const res = await fetch("/api/admin/stats");
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setStats(data);
+        }
+      } catch {
+        // ignore
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-  }
+
+    load();
+    return () => { cancelled = true; };
+  }, [refresh]);
 
   if (loading || !stats) {
     return (
@@ -87,6 +93,7 @@ export default function AdminDashboard() {
         <StatCard label="Total Requests" value={stats.totalRequests.toLocaleString()} />
         <StatCard label="Total Tokens" value={stats.totalTokens.toLocaleString()} />
         <StatCard label="Avg Latency" value={`${Math.round(stats.averageLatencyMs)}ms`} />
+        <StatCard label="P95 Latency" value={`${Math.round(stats.p95LatencyMs)}ms`} />
         <StatCard label="Success Rate" value={`${stats.successRate.toFixed(1)}%`} color={stats.successRate > 95 ? "green" : stats.successRate > 80 ? "yellow" : "red"} />
         <StatCard label="Success" value={stats.successCount.toLocaleString()} color="green" />
         <StatCard label="Errors" value={stats.errorCount.toLocaleString()} color="red" />

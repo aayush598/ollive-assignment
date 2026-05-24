@@ -111,4 +111,5 @@ export const inferenceLogs = pgTable("inference_logs", {
   index("log_status_idx").on(table.status),
   index("log_created_idx").on(table.createdAt),
   index("log_model_idx").on(table.model),
+  index("log_session_id_idx").on(table.sessionId),
 ]);
