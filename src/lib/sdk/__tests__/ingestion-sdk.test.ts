@@ -92,9 +92,12 @@ describe("IngestionSDK", () => {
 
     await sdk.flush();
 
-    expect(mockFetch).toHaveBeenCalledWith("http://test/api/ingest", expect.objectContaining({
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-    }));
+    expect(mockFetch).toHaveBeenCalledWith(
+      "http://test/api/ingest",
+      expect.objectContaining({
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
   });
 });

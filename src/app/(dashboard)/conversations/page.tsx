@@ -50,12 +50,14 @@ export default function ConversationsPage() {
     if (res.ok) {
       const data = await res.json();
       setMessages(
-        data.messages.map((m: { id: string; role: string; content: string; createdAt: string }) => ({
-          id: m.id,
-          role: m.role as "user" | "assistant",
-          content: m.content,
-          createdAt: m.createdAt,
-        })),
+        data.messages.map(
+          (m: { id: string; role: string; content: string; createdAt: string }) => ({
+            id: m.id,
+            role: m.role as "user" | "assistant",
+            content: m.content,
+            createdAt: m.createdAt,
+          }),
+        ),
       );
       setCurrentConversation(id);
       router.push("/chat");
@@ -91,12 +93,8 @@ export default function ConversationsPage() {
           <CardContent>
             <div className="text-center py-12">
               <div className="text-4xl mb-4">📋</div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                No conversations yet
-              </h2>
-              <p className="text-gray-500 mb-4">
-                Start a chat to see your conversations here.
-              </p>
+              <h2 className="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h2>
+              <p className="text-gray-500 mb-4">Start a chat to see your conversations here.</p>
               <Button onClick={() => router.push("/chat")}>Start Chatting</Button>
             </div>
           </CardContent>
@@ -108,9 +106,7 @@ export default function ConversationsPage() {
               <CardContent className="flex items-center justify-between py-4">
                 <div className="flex-1 min-w-0 mr-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-medium text-gray-900 truncate">
-                      {conv.title}
-                    </h3>
+                    <h3 className="font-medium text-gray-900 truncate">{conv.title}</h3>
                     <span
                       className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusBadge(conv.status)}`}
                     >
@@ -125,28 +121,16 @@ export default function ConversationsPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {conv.status === "active" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleCancel(conv.id)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleCancel(conv.id)}>
                       Cancel
                     </Button>
                   )}
                   {conv.status !== "active" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleResume(conv.id)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleResume(conv.id)}>
                       Resume
                     </Button>
                   )}
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleResume(conv.id)}
-                  >
+                  <Button variant="primary" size="sm" onClick={() => handleResume(conv.id)}>
                     Open
                   </Button>
                 </div>

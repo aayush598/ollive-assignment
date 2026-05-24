@@ -69,7 +69,9 @@ export default function AdminDashboard() {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [refresh]);
 
   if (loading || !stats) {
@@ -94,7 +96,11 @@ export default function AdminDashboard() {
         <StatCard label="Total Tokens" value={stats.totalTokens.toLocaleString()} />
         <StatCard label="Avg Latency" value={`${Math.round(stats.averageLatencyMs)}ms`} />
         <StatCard label="P95 Latency" value={`${Math.round(stats.p95LatencyMs)}ms`} />
-        <StatCard label="Success Rate" value={`${stats.successRate.toFixed(1)}%`} color={stats.successRate > 95 ? "green" : stats.successRate > 80 ? "yellow" : "red"} />
+        <StatCard
+          label="Success Rate"
+          value={`${stats.successRate.toFixed(1)}%`}
+          color={stats.successRate > 95 ? "green" : stats.successRate > 80 ? "yellow" : "red"}
+        />
         <StatCard label="Success" value={stats.successCount.toLocaleString()} color="green" />
         <StatCard label="Errors" value={stats.errorCount.toLocaleString()} color="red" />
         <StatCard label="Cancelled" value={stats.cancelledCount.toLocaleString()} color="gray" />
@@ -151,13 +157,18 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-3">
                 {Object.entries(stats.byProvider).map(([provider, data]) => {
-                  const maxCount = Math.max(...Object.values(stats.byProvider).map((v) => v.count), 1);
+                  const maxCount = Math.max(
+                    ...Object.values(stats.byProvider).map((v) => v.count),
+                    1,
+                  );
                   return (
                     <div key={provider}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900 capitalize">{provider}</span>
+                        <span className="text-sm font-medium text-gray-900 capitalize">
+                          {provider}
+                        </span>
                         <span className="text-sm text-gray-500">
-                          {data.count} req · {(data.avgLatencyMs).toFixed(0)}ms avg
+                          {data.count} req · {data.avgLatencyMs.toFixed(0)}ms avg
                         </span>
                       </div>
                       <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
@@ -168,7 +179,9 @@ export default function AdminDashboard() {
                       </div>
                       <div className="flex justify-between text-xs text-gray-400 mt-0.5">
                         <span>{data.totalTokens.toLocaleString()} tokens</span>
-                        {data.errors > 0 && <span className="text-red-400">{data.errors} errors</span>}
+                        {data.errors > 0 && (
+                          <span className="text-red-400">{data.errors} errors</span>
+                        )}
                       </div>
                     </div>
                   );

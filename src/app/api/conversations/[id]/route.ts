@@ -12,9 +12,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const [conversation] = await db
       .select()
       .from(schema.conversations)
-      .where(
-        and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)),
-      )
+      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)))
       .limit(1);
 
     if (!conversation) {
@@ -57,9 +55,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     const [updated] = await db
       .update(schema.conversations)
       .set(updateData)
-      .where(
-        and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)),
-      )
+      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)))
       .returning();
 
     if (!updated) {
@@ -85,9 +81,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     const [deleted] = await db
       .delete(schema.conversations)
-      .where(
-        and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)),
-      )
+      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)))
       .returning();
 
     if (!deleted) {

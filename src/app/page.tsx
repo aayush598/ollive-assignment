@@ -59,12 +59,11 @@ export default function HomePage() {
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="text-center max-w-3xl mx-auto">
             <h1 className="text-5xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-              LLM Inference{" "}
-              <span className="text-blue-600">Logging & Ingestion</span>
+              LLM Inference <span className="text-blue-600">Logging & Ingestion</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600">
-              A production-ready system for logging, monitoring, and analyzing LLM
-              inference metadata. Built with Next.js, TypeScript, and modern best practices.
+              A production-ready system for logging, monitoring, and analyzing LLM inference
+              metadata. Built with Next.js, TypeScript, and modern best practices.
             </p>
             <div className="mt-10 flex items-center justify-center gap-4">
               {session ? (
@@ -106,8 +105,8 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Multi-Provider Chat</h3>
                 <p className="text-gray-600">
-                  Chat with GPT-4.1, Claude Sonnet, Gemini, DeepSeek, and Grok through a
-                  unified interface.
+                  Chat with GPT-4.1, Claude Sonnet, Gemini, DeepSeek, and Grok through a unified
+                  interface.
                 </p>
               </div>
               <div className="p-6 rounded-xl border border-gray-200">
@@ -116,8 +115,8 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Inference Logging</h3>
                 <p className="text-gray-600">
-                  Capture latency, token usage, errors and metadata from every
-                  LLM inference request.
+                  Capture latency, token usage, errors and metadata from every LLM inference
+                  request.
                 </p>
               </div>
               <div className="p-6 rounded-xl border border-gray-200">
@@ -126,8 +125,8 @@ export default function HomePage() {
                 </div>
                 <h3 className="text-lg font-semibold mb-2">PII Redaction</h3>
                 <p className="text-gray-600">
-                  Automatic detection and redaction of emails, phone numbers, SSNs,
-                  and other PII from logs.
+                  Automatic detection and redaction of emails, phone numbers, SSNs, and other PII
+                  from logs.
                 </p>
               </div>
             </div>

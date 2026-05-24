@@ -1,6 +1,9 @@
 const PII_PATTERNS: { regex: RegExp; replacement: string }[] = [
   { regex: /\b[\w.-]+@[\w.-]+\.\w+\b/g, replacement: "[EMAIL_REDACTED]" },
-  { regex: /(?:\b|\()(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g, replacement: "[PHONE_REDACTED]" },
+  {
+    regex: /(?:\b|\()(?:\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}\b/g,
+    replacement: "[PHONE_REDACTED]",
+  },
   { regex: /\b\d{3}-\d{2}-\d{4}\b/g, replacement: "[SSN_REDACTED]" },
   { regex: /\b(?:\d{4}[-\s]?){3}\d{4}\b/g, replacement: "[CC_REDACTED]" },
   { regex: /\b[A-Z]{2}\d{6,10}\b/g, replacement: "[DL_REDACTED]" },

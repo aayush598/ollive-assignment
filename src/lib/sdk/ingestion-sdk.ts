@@ -37,11 +37,7 @@ export class IngestionSDK {
     }
   }
 
-  capture(
-    req: LLMRequest,
-    response: LLMResponse,
-    options?: SDKCaptureOptions,
-  ): InferenceLog {
+  capture(req: LLMRequest, response: LLMResponse, options?: SDKCaptureOptions): InferenceLog {
     const inputRaw = req.messages.map((m) => m.content).join("\n");
     const outputRaw = response.content;
 
@@ -91,11 +87,7 @@ export class IngestionSDK {
     return log;
   }
 
-  captureError(
-    req: LLMRequest,
-    error: Error | string,
-    options?: SDKCaptureOptions,
-  ): InferenceLog {
+  captureError(req: LLMRequest, error: Error | string, options?: SDKCaptureOptions): InferenceLog {
     const inputRaw = req.messages.map((m) => m.content).join("\n");
     let inputPreview = inputRaw.slice(0, 500);
     let piiRedacted = false;
@@ -151,10 +143,14 @@ export class IngestionSDK {
 
   private startAutoFlush(): void {
     if (this.flushTimer) clearInterval(this.flushTimer);
-    this.flushTimer = setInterval(() => { this.flush().catch(() => {}); }, this.config.flushIntervalMs);
+    this.flushTimer = setInterval(() => {
+      this.flush().catch(() => {});
+    }, this.config.flushIntervalMs);
 
     if (typeof process !== "undefined" && typeof process.on === "function") {
-      process.on("beforeExit", () => { this.flush().catch(() => {}); });
+      process.on("beforeExit", () => {
+        this.flush().catch(() => {});
+      });
       process.on("SIGINT", () => {
         this.flush().finally(() => process.exit(0));
       });
@@ -175,6 +171,7 @@ export class IngestionSDK {
 
 export const ingestionSDK = new IngestionSDK({
   ingestEndpoint:
-    process.env.NEXT_PUBLIC_INGEST_ENDPOINT ?? `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/ingest`,
+    process.env.NEXT_PUBLIC_INGEST_ENDPOINT ??
+    `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/ingest`,
   enablePIIRedaction: true,
 });

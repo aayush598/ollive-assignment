@@ -18,6 +18,8 @@ export async function startIngestionListener() {
     // this would process NOTIFY payloads as they arrive.
     // For now, the in-process EventEmitter handles real-time event distribution.
   } catch {
-    console.debug("[ingestion-listener] Postgres LISTEN/NOTIFY not supported in this driver, falling back to in-process events");
+    console.debug(
+      "[ingestion-listener] Postgres LISTEN/NOTIFY not supported in this driver, falling back to in-process events",
+    );
   }
 }

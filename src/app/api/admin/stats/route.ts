@@ -8,7 +8,10 @@ export async function GET() {
     const stats = await getInferenceStats({ since });
 
     const hourlyRes = await fetch(
-      new URL("/api/admin/stats/hourly", process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+      new URL(
+        "/api/admin/stats/hourly",
+        process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000",
+      ),
     ).catch(() => null);
 
     let hourlyBreakdown = [];

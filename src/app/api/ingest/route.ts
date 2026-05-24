@@ -6,7 +6,10 @@ import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    const { allowed } = rateLimit(getRateLimitKey(ip, "ingest"), { maxRequests: 120, windowMs: 60000 });
+    const { allowed } = rateLimit(getRateLimitKey(ip, "ingest"), {
+      maxRequests: 120,
+      windowMs: 60000,
+    });
     if (!allowed) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }

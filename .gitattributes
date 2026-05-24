@@ -1,0 +1,41 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Source
+*.ts text
+*.tsx text
+*.js text
+*.jsx text
+*.json text
+*.css text
+*.mjs text
+*.cjs text
+
+# Config
+*.yml text
+*.yaml text
+*.toml text
+
+# Docs
+*.md text
+*.mdx text
+
+# Shell
+*.sh text eol=lf
+
+# Binaries
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+
+# Lock files
+package-lock.json -text
+pnpm-lock.yaml -text
+yarn.lock -text

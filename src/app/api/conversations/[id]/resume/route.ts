@@ -12,9 +12,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     const [updated] = await db
       .update(schema.conversations)
       .set({ status: "active", updatedAt: new Date() })
-      .where(
-        and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)),
-      )
+      .where(and(eq(schema.conversations.id, id), eq(schema.conversations.userId, session.user.id)))
       .returning();
 
     if (!updated) {

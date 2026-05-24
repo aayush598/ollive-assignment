@@ -55,14 +55,23 @@ const components: Components = {
     );
   },
   th({ children }) {
-    return <th className="border border-gray-300 bg-gray-100 px-3 py-2 font-semibold text-left">{children}</th>;
+    return (
+      <th className="border border-gray-300 bg-gray-100 px-3 py-2 font-semibold text-left">
+        {children}
+      </th>
+    );
   },
   td({ children }) {
     return <td className="border border-gray-300 px-3 py-2">{children}</td>;
   },
   a({ href, children }) {
     return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:underline"
+      >
         {children}
       </a>
     );

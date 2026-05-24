@@ -56,7 +56,9 @@ describe("createEnv", () => {
 
     const { env } = await import("../env");
     expect(env.DATABASE_URL).toBe("postgresql://localhost:5432/llmchat");
-    expect(env.BETTER_AUTH_SECRET).toBe("dev-secret-change-in-production-must-be-longer-than-32-chars-here");
+    expect(env.BETTER_AUTH_SECRET).toBe(
+      "dev-secret-change-in-production-must-be-longer-than-32-chars-here",
+    );
     expect(env.NODE_ENV).toBe("development");
   });
 });

@@ -26,7 +26,11 @@ export function CardHeader({ className = "", children, ...props }: HTMLAttribute
   );
 }
 
-export function CardContent({ className = "", children, ...props }: HTMLAttributes<HTMLDivElement>) {
+export function CardContent({
+  className = "",
+  children,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={`px-6 py-4 ${className}`} {...props}>
       {children}

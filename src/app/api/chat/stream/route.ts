@@ -82,9 +82,14 @@ async function setupConversation(
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    const { allowed, remaining } = rateLimit(getRateLimitKey(ip, "chat:stream"), { maxRequests: 20, windowMs: 60000 });
+    const { allowed, remaining } = rateLimit(getRateLimitKey(ip, "chat:stream"), {
+      maxRequests: 20,
+      windowMs: 60000,
+    });
     if (!allowed) {
-      return new Response(JSON.stringify({ error: "Too many requests", remaining }), { status: 429 });
+      return new Response(JSON.stringify({ error: "Too many requests", remaining }), {
+        status: 429,
+      });
     }
 
     const session = await requireAuth();
@@ -92,7 +97,10 @@ export async function POST(req: NextRequest) {
 
     const parsed = ChatRequestSchema.safeParse(body);
     if (!parsed.success) {
-      return new Response(JSON.stringify({ error: "Invalid request", details: parsed.error.issues }), { status: 400 });
+      return new Response(
+        JSON.stringify({ error: "Invalid request", details: parsed.error.issues }),
+        { status: 400 },
+      );
     }
 
     const { conversationId, message, model, provider } = parsed.data;
@@ -101,12 +109,19 @@ export async function POST(req: NextRequest) {
     const llmProvider = llmRegistry.get(provider ?? llmRegistry.getDefault().name);
 
     const { convId, llmMessages } = await setupConversation(
-      session, conversationId, message, resolvedModel, provider,
+      session,
+      conversationId,
+      message,
+      resolvedModel,
+      provider,
     );
 
     const isFirstMessage = llmMessages.length <= 1;
     const augmentedMessages = await augmentMessagesWithContext(
-      session.user.id, message, llmMessages, isFirstMessage,
+      session.user.id,
+      message,
+      llmMessages,
+      isFirstMessage,
     );
 
     let fullContent = "";
@@ -158,8 +173,22 @@ export async function POST(req: NextRequest) {
           });
 
           await insertInferenceLog(
-            { messages: llmMessages, model: resolvedModel, provider: llmProvider.name, conversationId: convId, userId: session.user.id },
-            { content: fullContent, provider: llmProvider.name, model: resolvedModel, latencyMs: latency, usage, finishReason: "stop", id: assistantMsgId },
+            {
+              messages: llmMessages,
+              model: resolvedModel,
+              provider: llmProvider.name,
+              conversationId: convId,
+              userId: session.user.id,
+            },
+            {
+              content: fullContent,
+              provider: llmProvider.name,
+              model: resolvedModel,
+              latencyMs: latency,
+              usage,
+              finishReason: "stop",
+              id: assistantMsgId,
+            },
             { conversationId: convId, userId: session.user.id, messageId: assistantMsgId },
           );
 
@@ -184,7 +213,12 @@ export async function POST(req: NextRequest) {
           });
         } catch (error) {
           if (!req.signal.aborted) {
-            send(JSON.stringify({ type: "error", error: error instanceof Error ? error.message : "Stream error" }));
+            send(
+              JSON.stringify({
+                type: "error",
+                error: error instanceof Error ? error.message : "Stream error",
+              }),
+            );
           }
           controller.close();
         }

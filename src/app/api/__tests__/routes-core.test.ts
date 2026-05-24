@@ -41,13 +41,17 @@ vi.mock("@/lib/llm/registry", () => ({
       generateStream: vi.fn().mockReturnValue(
         (async function* () {
           yield { type: "chunk" as const, content: "Hello" };
-          yield { type: "done" as const, usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }, finishReason: "stop" };
+          yield {
+            type: "done" as const,
+            usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
+            finishReason: "stop",
+          };
         })(),
       ),
     }),
-    listAvailableModels: vi.fn().mockReturnValue([
-      { provider: "openai", model: "gpt-4.1", label: "OpenAI — gpt-4.1" },
-    ]),
+    listAvailableModels: vi
+      .fn()
+      .mockReturnValue([{ provider: "openai", model: "gpt-4.1", label: "OpenAI — gpt-4.1" }]),
     listProviders: vi.fn().mockReturnValue(["openai"]),
   },
 }));
@@ -89,7 +93,7 @@ describe("processIngestBatch", () => {
     const dbModule = await import("@/lib/db");
     vi.mocked(dbModule.db.insert).mockReturnValueOnce({
       values: vi.fn().mockRejectedValue(new Error("DB write failed")),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
     const { processIngestBatch } = await import("@/lib/ingestion/service");
@@ -177,7 +181,15 @@ describe("ingestion API stats", () => {
     const dbModule = await import("@/lib/db");
 
     vi.mocked(dbModule.db.execute).mockResolvedValue([
-      { count: 10, total_tokens: 500, avg_latency: 200, p95_latency: 800, success: 8, error: 1, cancelled: 1 },
+      {
+        count: 10,
+        total_tokens: 500,
+        avg_latency: 200,
+        p95_latency: 800,
+        success: 8,
+        error: 1,
+        cancelled: 1,
+      },
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ] as any);
 

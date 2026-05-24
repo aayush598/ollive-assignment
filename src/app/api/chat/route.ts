@@ -20,7 +20,10 @@ const ChatRequestSchema = z.object({
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    const { allowed } = rateLimit(getRateLimitKey(ip, "chat"), { maxRequests: 30, windowMs: 60000 });
+    const { allowed } = rateLimit(getRateLimitKey(ip, "chat"), {
+      maxRequests: 30,
+      windowMs: 60000,
+    });
     if (!allowed) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
@@ -30,7 +33,10 @@ export async function POST(req: NextRequest) {
 
     const parsed = ChatRequestSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid request", details: parsed.error.issues }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid request", details: parsed.error.issues },
+        { status: 400 },
+      );
     }
 
     const { conversationId, message, model, provider } = parsed.data;
@@ -96,7 +102,10 @@ export async function POST(req: NextRequest) {
 
     const isFirstMessage = llmMessages.length <= 1;
     const augmentedMessages = await augmentMessagesWithContext(
-      session.user.id, message, llmMessages, isFirstMessage,
+      session.user.id,
+      message,
+      llmMessages,
+      isFirstMessage,
     );
 
     const response = await llmProvider.generate({
@@ -125,7 +134,13 @@ export async function POST(req: NextRequest) {
       .where(eq(schema.conversations.id, convId));
 
     await insertInferenceLog(
-      { messages: llmMessages, model: llmModel, provider: llmProvider.name, conversationId: convId, userId: session.user.id },
+      {
+        messages: llmMessages,
+        model: llmModel,
+        provider: llmProvider.name,
+        conversationId: convId,
+        userId: session.user.id,
+      },
       response,
       { conversationId: convId, userId: session.user.id, messageId: assistantMsgId },
     );

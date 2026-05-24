@@ -17,9 +17,7 @@ export interface IngestResult {
   errors: string[];
 }
 
-export async function processIngestBatch(
-  body: unknown,
-): Promise<IngestResult> {
+export async function processIngestBatch(body: unknown): Promise<IngestResult> {
   const result: IngestResult = { accepted: 0, rejected: 0, errors: [] };
 
   const parsed = BatchIngestSchema.safeParse(body);
@@ -90,18 +88,17 @@ function processInferenceLog(log: InferenceLog): InferenceLog {
   return processed;
 }
 
-export async function getInferenceLogs(
-  options?: {
-    conversationId?: string;
-    userId?: string;
-    provider?: string;
-    status?: string;
-    limit?: number;
-    offset?: number;
-  },
-) {
+export async function getInferenceLogs(options?: {
+  conversationId?: string;
+  userId?: string;
+  provider?: string;
+  status?: string;
+  limit?: number;
+  offset?: number;
+}) {
   const conditions = [];
-  if (options?.conversationId) conditions.push(eq(schema.inferenceLogs.conversationId, options.conversationId));
+  if (options?.conversationId)
+    conditions.push(eq(schema.inferenceLogs.conversationId, options.conversationId));
   if (options?.userId) conditions.push(eq(schema.inferenceLogs.userId, options.userId));
   if (options?.provider) conditions.push(eq(schema.inferenceLogs.provider, options.provider));
   if (options?.status) conditions.push(sql`${schema.inferenceLogs.status} = ${options.status}`);
@@ -129,12 +126,15 @@ export interface DashboardStats {
   cancelledCount: number;
   successRate: number;
   errorRate: number;
-  byProvider: Record<string, {
-    count: number;
-    totalTokens: number;
-    avgLatencyMs: number;
-    errors: number;
-  }>;
+  byProvider: Record<
+    string,
+    {
+      count: number;
+      totalTokens: number;
+      avgLatencyMs: number;
+      errors: number;
+    }
+  >;
   recentErrors: Array<{
     id: string;
     provider: string;
@@ -164,7 +164,15 @@ export async function getInferenceStats(options?: {
   const whereClause = filters.length > 0 ? sql`WHERE ${andConditions(filters)}` : sql``;
   const p95SubClause = filters.length > 0 ? sql`AND ${andConditions(filters)}` : sql``;
 
-  const [total] = await db.execute<{ count: number; total_tokens: number; avg_latency: number; p95_latency: number; success: number; error: number; cancelled: number }>(sql`
+  const [total] = await db.execute<{
+    count: number;
+    total_tokens: number;
+    avg_latency: number;
+    p95_latency: number;
+    success: number;
+    error: number;
+    cancelled: number;
+  }>(sql`
     SELECT
       COUNT(*)::int as count,
       COALESCE(SUM(total_tokens), 0)::int as total_tokens,
@@ -189,7 +197,13 @@ export async function getInferenceStats(options?: {
     ${filters.length > 0 ? sql`AND ${andConditions(filters)}` : sql``}
   `);
 
-  const perProvider = await db.execute<{ provider: string; count: number; total_tokens: number; avg_latency: number; errors: number }>(sql`
+  const perProvider = await db.execute<{
+    provider: string;
+    count: number;
+    total_tokens: number;
+    avg_latency: number;
+    errors: number;
+  }>(sql`
     SELECT
       provider,
       COUNT(*)::int as count,

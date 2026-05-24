@@ -75,17 +75,19 @@ describe("useChatStore", () => {
   });
 
   it("should set conversations", () => {
-    const convs = [{
-      id: "conv-1",
-      title: "Test",
-      status: "active" as const,
-      model: "gpt-4.1",
-      provider: "openai",
-      messageCount: 2,
-      totalTokens: 50,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    }];
+    const convs = [
+      {
+        id: "conv-1",
+        title: "Test",
+        status: "active" as const,
+        model: "gpt-4.1",
+        provider: "openai",
+        messageCount: 2,
+        totalTokens: 50,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
     store.useChatStore.getState().setConversations(convs);
     expect(store.useChatStore.getState().conversations).toEqual(convs);
   });

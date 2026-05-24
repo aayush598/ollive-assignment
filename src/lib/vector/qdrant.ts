@@ -81,7 +81,7 @@ export async function ensureCollection(): Promise<void> {
       // Qdrant not configured, nothing to ensure
       return;
     }
-    
+
     await ensureCollectionExists(client);
     await ensureIndexesExist(client);
   } catch (error) {

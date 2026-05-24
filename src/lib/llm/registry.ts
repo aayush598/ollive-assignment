@@ -17,7 +17,9 @@ class LLMProviderRegistry {
   get(name: string): LLMProvider {
     const provider = this.providers.get(name);
     if (!provider) {
-      throw new Error(`LLM provider "${name}" not registered. Available: ${Array.from(this.providers.keys()).join(", ")}`);
+      throw new Error(
+        `LLM provider "${name}" not registered. Available: ${Array.from(this.providers.keys()).join(", ")}`,
+      );
     }
     return provider;
   }

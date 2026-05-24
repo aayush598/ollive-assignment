@@ -8,7 +8,11 @@ vi.mock("../index", () => ({
   schema: {},
 }));
 
-const mockRedactPII = vi.fn((text: string) => ({ redacted: text, hasPII: false, redactedCount: 0 }));
+const mockRedactPII = vi.fn((text: string) => ({
+  redacted: text,
+  hasPII: false,
+  redactedCount: 0,
+}));
 
 vi.mock("../../pii/redactor", () => ({
   redactPII: mockRedactPII,
@@ -17,7 +21,11 @@ vi.mock("../../pii/redactor", () => ({
 describe("insertInferenceLog", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRedactPII.mockImplementation((text: string) => ({ redacted: text, hasPII: false, redactedCount: 0 }));
+    mockRedactPII.mockImplementation((text: string) => ({
+      redacted: text,
+      hasPII: false,
+      redactedCount: 0,
+    }));
   });
 
   it("should insert a success inference log with metadata", async () => {

@@ -54,9 +54,7 @@ export class GeminiProvider implements LLMProvider {
         finishReason: candidate?.finishReason ?? "stop",
       };
     } catch (error) {
-      throw new Error(
-        `Gemini error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      throw new Error(`Gemini error: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 

@@ -37,13 +37,17 @@ describe("augmentMessagesWithContext", () => {
         points: [
           {
             score: 0.85,
-            payload: { userId: "user-1", userMessage: "Previous Q", assistantMessage: "Previous A" },
+            payload: {
+              userId: "user-1",
+              userMessage: "Previous Q",
+              assistantMessage: "Previous A",
+            },
           },
         ],
       }),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const messages = [{ role: "user" as const, content: "Hello" }];
     const result = await augmentMessagesWithContext("user-1", "Hello", messages, false);
@@ -62,7 +66,7 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
       query: vi.fn().mockResolvedValue({ points: [] }),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const messages = [{ role: "user" as const, content: "Hello" }];
     const result = await augmentMessagesWithContext("user-1", "Hello", messages, false);
@@ -114,7 +118,7 @@ describe("retrieveRelevantContext", () => {
       }),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const result = await retrieveRelevantContext("user-1", "What is AI?");
     expect(result).not.toBeNull();
@@ -137,7 +141,7 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
       }),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const result = await retrieveRelevantContext("user-1", "Hi");
     expect(result).toBeNull();
@@ -151,7 +155,7 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
       query: vi.fn().mockRejectedValue(new Error("Bad Request")),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const result = await retrieveRelevantContext("user-1", "Hello");
     expect(result).toBeNull();
@@ -162,7 +166,8 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
     const { retrieveRelevantContext } = await import("../context");
 
     // First call (filtered) fails, second call (unfiltered) succeeds
-    const mockQuery = vi.fn()
+    const mockQuery = vi
+      .fn()
       .mockRejectedValueOnce(new Error("Bad Request"))
       .mockResolvedValueOnce({
         points: [
@@ -175,7 +180,7 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const mockClient = { query: mockQuery };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const result = await retrieveRelevantContext("user-1", "Hello");
     expect(result).not.toBeNull();
@@ -189,13 +194,18 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
     const qdrantModule = await import("@/lib/vector/qdrant");
     const { retrieveRelevantContext } = await import("../context");
 
-    const mockQuery = vi.fn()
+    const mockQuery = vi
+      .fn()
       .mockRejectedValueOnce(new Error("Bad Request"))
       .mockResolvedValueOnce({
         points: [
           {
             score: 0.9,
-            payload: { userId: "user-2", userMessage: "Other user Q", assistantMessage: "Other user A" },
+            payload: {
+              userId: "user-2",
+              userMessage: "Other user Q",
+              assistantMessage: "Other user A",
+            },
           },
           {
             score: 0.85,
@@ -206,7 +216,7 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const mockClient = { query: mockQuery };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const result = await retrieveRelevantContext("user-1", "Hello");
     expect(result).not.toBeNull();
@@ -219,13 +229,14 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
     const qdrantModule = await import("@/lib/vector/qdrant");
     const { retrieveRelevantContext } = await import("../context");
 
-    const mockQuery = vi.fn()
+    const mockQuery = vi
+      .fn()
       .mockRejectedValueOnce(new Error("Bad Request"))
       .mockRejectedValueOnce(new Error("Connection refused"));
 
     const mockClient = { query: mockQuery };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     const result = await retrieveRelevantContext("user-1", "Hello");
     expect(result).toBeNull();
@@ -264,7 +275,7 @@ describe("storeConversationTurn", () => {
       upsert: vi.fn().mockResolvedValue(undefined),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     await storeConversationTurn({
       userId: "user-1",
@@ -287,7 +298,7 @@ vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
       upsert: vi.fn().mockRejectedValue(new Error("Storage error")),
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
+    vi.mocked(qdrantModule.getQdrantClient).mockReturnValue(mockClient as any);
 
     await expect(
       storeConversationTurn({

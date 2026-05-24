@@ -16,15 +16,13 @@ export interface ContextEntry {
   timestamp: number;
 }
 
-export async function storeConversationTurn(
-  entry: ContextEntry,
-): Promise<void> {
+export async function storeConversationTurn(entry: ContextEntry): Promise<void> {
   const client = getQdrantClient();
   if (!client) {
     // Qdrant not configured, skip storing context
     return;
   }
-  
+
   try {
     const vector = await generateEmbedding(entry.userMessage);
     await client.upsert(COLLECTION_NAME, {
@@ -68,10 +66,10 @@ export async function retrieveRelevantContext(
     // Qdrant not configured, return null to indicate no context available
     return null;
   }
-  
+
   try {
     const vector = await generateEmbedding(message);
-    
+
     // Strategy 1: query with userId filter (requires payload index)
     try {
       const result = await client.query(COLLECTION_NAME, {
@@ -83,9 +81,7 @@ export async function retrieveRelevantContext(
         limit: CONTEXT_LIMIT,
       });
 
-      const relevant = result.points.filter(
-        (p) => (p.score ?? 0) >= SCORE_THRESHOLD,
-      );
+      const relevant = result.points.filter((p) => (p.score ?? 0) >= SCORE_THRESHOLD);
       if (relevant.length === 0) return null;
       return formatContextSections(relevant);
     } catch {
@@ -101,9 +97,9 @@ export async function retrieveRelevantContext(
         limit: CONTEXT_LIMIT * 5,
       });
 
-      const userPoints = result.points.filter(
-        (p) => p.payload?.userId === userId && (p.score ?? 0) >= SCORE_THRESHOLD,
-      ).slice(0, CONTEXT_LIMIT);
+      const userPoints = result.points
+        .filter((p) => p.payload?.userId === userId && (p.score ?? 0) >= SCORE_THRESHOLD)
+        .slice(0, CONTEXT_LIMIT);
 
       if (userPoints.length === 0) return null;
       return formatContextSections(userPoints);
@@ -128,10 +124,7 @@ export async function augmentMessagesWithContext(
   if (!isFirstMessage) {
     const context = await retrieveRelevantContext(userId, message);
     if (context) {
-      return [
-        { role: "system", content: context },
-        ...messages,
-      ];
+      return [{ role: "system", content: context }, ...messages];
     }
   }
 

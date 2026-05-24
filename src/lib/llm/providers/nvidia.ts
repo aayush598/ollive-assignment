@@ -57,9 +57,7 @@ export class NVIDIAProvider implements LLMProvider {
         finishReason: data.choices?.[0]?.finish_reason ?? "stop",
       };
     } catch (error) {
-      throw new Error(
-        `NVIDIA error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      throw new Error(`NVIDIA error: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
   }
 

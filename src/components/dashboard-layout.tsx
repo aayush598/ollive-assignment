@@ -67,7 +67,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                 className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
               >
                 <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-blue-700">{userName ? userName.charAt(0).toUpperCase() : "?"}</span>
+                  <span className="text-xs font-medium text-blue-700">
+                    {userName ? userName.charAt(0).toUpperCase() : "?"}
+                  </span>
                 </div>
               </button>
               {showMenu && (

@@ -3,7 +3,10 @@ import postgres from "postgres";
 import * as schema from "./schema";
 import { env } from "../env";
 
-const globalPool = globalThis as unknown as { __db?: ReturnType<typeof drizzle>; __client?: postgres.Sql };
+const globalPool = globalThis as unknown as {
+  __db?: ReturnType<typeof drizzle>;
+  __client?: postgres.Sql;
+};
 
 function createDb() {
   if (!globalPool.__client) {

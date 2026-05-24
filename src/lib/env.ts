@@ -13,7 +13,9 @@ const envSchema = z.object({
   NVIDIA_API_KEY: z.string().optional(),
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
-  DEFAULT_LLM_PROVIDER: z.enum(["openai", "anthropic", "gemini", "deepseek", "openrouter", "nvidia"]).default("nvidia"),
+  DEFAULT_LLM_PROVIDER: z
+    .enum(["openai", "anthropic", "gemini", "deepseek", "openrouter", "nvidia"])
+    .default("nvidia"),
   DEFAULT_LLM_MODEL: z.string().default("minimaxai/minimax-m2.7"),
   QDRANT_URL: z.string().url().optional(),
   QDRANT_API_KEY: z.string().optional(),
@@ -24,12 +26,17 @@ function createEnv() {
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
     console.error("Invalid environment variables:", parsed.error.flatten().fieldErrors);
-    if (process.env.NODE_ENV === "production" && process.env.NEXT_PHASE !== "phase-production-build") {
+    if (
+      process.env.NODE_ENV === "production" &&
+      process.env.NEXT_PHASE !== "phase-production-build"
+    ) {
       throw new Error("Invalid environment variables");
     }
     return envSchema.parse({
       DATABASE_URL: process.env.DATABASE_URL ?? "postgresql://localhost:5432/llmchat",
-      BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET ?? "dev-secret-change-in-production-must-be-longer-than-32-chars-here",
+      BETTER_AUTH_SECRET:
+        process.env.BETTER_AUTH_SECRET ??
+        "dev-secret-change-in-production-must-be-longer-than-32-chars-here",
       BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
       NODE_ENV: "development",
       NVIDIA_API_KEY: process.env.NVIDIA_API_KEY,
