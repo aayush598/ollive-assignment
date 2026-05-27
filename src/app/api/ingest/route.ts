@@ -14,8 +14,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }
 
-    await requireAuth();
+    const session = await requireAuth();
     const body = await req.json();
+    if (body?.logs?.length) {
+      for (const log of body.logs) {
+        log.userId = session.user.id;
+      }
+    }
     const result = await processIngestBatch(body);
     return NextResponse.json(result, { status: result.errors.length > 0 ? 207 : 200 });
   } catch (error) {

@@ -160,7 +160,7 @@ describe("models API", () => {
     expect(data.models[0]).toHaveProperty("label");
   });
 
-  it("should return empty models on auth failure", async () => {
+  it("should return 401 on auth failure", async () => {
     const authModule = await import("@/lib/auth/api");
     vi.mocked(authModule.requireAuth).mockRejectedValueOnce(new Error("Unauthorized"));
 
@@ -168,7 +168,8 @@ describe("models API", () => {
     const response = await mod.GET();
     const data = await response.json();
 
-    expect(data.models).toEqual([]);
+    expect(response.status).toBe(401);
+    expect(data.error).toBe("Unauthorized");
   });
 });
 

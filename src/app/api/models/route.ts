@@ -5,9 +5,9 @@ import { llmRegistry } from "@/lib/llm/registry";
 export async function GET() {
   try {
     await requireAuth();
-    const models = llmRegistry.listAvailableModels();
-    return NextResponse.json({ models });
   } catch {
-    return NextResponse.json({ models: [] });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  const models = llmRegistry.listAvailableModels();
+  return NextResponse.json({ models });
 }

@@ -22,8 +22,9 @@ export async function processIngestBatch(body: unknown): Promise<IngestResult> {
 
   const parsed = BatchIngestSchema.safeParse(body);
   if (!parsed.success) {
+    const issues = parsed.error.issues.map((iss) => `${iss.path.join(".")}: ${iss.message}`);
     result.rejected = 1;
-    result.errors.push(parsed.error.message);
+    result.errors.push(...issues);
     return result;
   }
 
@@ -61,9 +62,16 @@ export async function processIngestBatch(body: unknown): Promise<IngestResult> {
       });
     } catch (error) {
       result.rejected++;
-      result.errors.push(
-        `Log processing error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+      const cause = (error as Error & { cause?: unknown }).cause as
+        | (Error & { code?: string; constraint_name?: string })
+        | undefined;
+      if (cause?.code === "23503") {
+        const name = cause.constraint_name ?? "foreign key";
+        result.errors.push(`Referenced record not found (${name}). Create the resource first.`);
+      } else {
+        const msg = error instanceof Error ? error.message : "Unknown error";
+        result.errors.push(msg);
+      }
     }
   }
 

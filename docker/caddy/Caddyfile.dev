@@ -1,0 +1,49 @@
+# LLM Inference Logger - Dev Caddy Configuration
+# For development where the app runs on localhost:3000
+# Use: caddy reload --config docker/caddy/Caddyfile.dev
+
+http://app.localhost {
+    reverse_proxy localhost:3000 {
+        header_up Host localhost:3000
+    }
+
+    encode gzip
+
+    @static {
+        path /_next/static/* /static/* /favicon.ico /robots.txt /sitemap.xml /manifest.json /sw.js /icons/*
+    }
+    header @static Cache-Control "public, max-age=31536000, immutable"
+}
+
+http://grafana.localhost {
+    reverse_proxy localhost:3001
+    encode gzip
+}
+
+http://prometheus.localhost {
+    reverse_proxy localhost:9090
+}
+
+http://loki.localhost {
+    reverse_proxy localhost:3100
+}
+
+http://uptime.localhost {
+    reverse_proxy localhost:3001
+}
+
+http://glitchtip.localhost {
+    reverse_proxy localhost:8000
+}
+
+http://umami.localhost {
+    reverse_proxy localhost:3000
+}
+
+http://minio.localhost {
+    reverse_proxy localhost:9000
+}
+
+http://typesense.localhost {
+    reverse_proxy localhost:8108
+}
