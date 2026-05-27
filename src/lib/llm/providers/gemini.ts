@@ -1,4 +1,5 @@
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamEvent } from "../types";
+import { env } from "../../env";
 
 export class GeminiProvider implements LLMProvider {
   name = "gemini";
@@ -28,6 +29,7 @@ export class GeminiProvider implements LLMProvider {
               temperature: req.temperature ?? 0.7,
             },
           }),
+          signal: AbortSignal.timeout(env.LLM_REQUEST_TIMEOUT),
         },
       );
 
@@ -75,6 +77,7 @@ export class GeminiProvider implements LLMProvider {
               temperature: req.temperature ?? 0.7,
             },
           }),
+          signal: AbortSignal.timeout(env.LLM_STREAM_TIMEOUT),
         },
       );
 

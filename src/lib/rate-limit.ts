@@ -70,7 +70,14 @@ export async function rateLimit(
 }
 
 export function getRateLimitKey(ip: string, path: string): string {
-  return `rl:${ip}:${path}`;
+  return `${ip}:${path}`;
+}
+
+export function getRateLimitHeaders(remaining: number, windowMs: number): Record<string, string> {
+  return {
+    "X-RateLimit-Remaining": String(remaining),
+    "X-RateLimit-Reset": String(Math.ceil((Date.now() + windowMs) / 1000)),
+  };
 }
 
 // Periodic cleanup for in-memory entries

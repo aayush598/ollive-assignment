@@ -1,4 +1,5 @@
 import { getInferenceStats } from "@/lib/ingestion/service";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -24,7 +25,7 @@ export async function GET() {
       hourlyBreakdown,
     });
   } catch (error) {
-    console.error("Failed to fetch stats:", error);
+    logger.error({ err: error }, "Failed to fetch stats");
     return Response.json(
       {
         totalRequests: 0,

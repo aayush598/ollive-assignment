@@ -1,4 +1,5 @@
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamEvent } from "../types";
+import { env } from "../../env";
 
 export class OpenRouterProvider implements LLMProvider {
   name = "openrouter";
@@ -33,6 +34,7 @@ export class OpenRouterProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: false,
         }),
+        signal: AbortSignal.timeout(env.LLM_REQUEST_TIMEOUT),
       });
 
       if (!res.ok) {
@@ -79,6 +81,7 @@ export class OpenRouterProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: true,
         }),
+        signal: AbortSignal.timeout(env.LLM_STREAM_TIMEOUT),
       });
 
       if (!res.ok) {

@@ -1,6 +1,7 @@
 import type { InferenceLog, LLMResponse, LLMRequest } from "../llm/types";
 import { InferenceLogSchema } from "../llm/types";
 import { redactPII } from "../pii/redactor";
+import { logger } from "../logger";
 
 export interface SDKConfig {
   ingestEndpoint: string;
@@ -134,10 +135,10 @@ export class IngestionSDK {
       });
 
       if (!res.ok) {
-        console.error(`Ingestion flush failed (${res.status}): ${await res.text()}`);
+        logger.error({ status: res.status, response: await res.text() }, "Ingestion flush failed");
       }
     } catch (error) {
-      console.error("Ingestion flush error:", error);
+      logger.error({ err: error }, "Ingestion flush error");
     }
   }
 

@@ -74,6 +74,8 @@ export const conversations = pgTable(
     index("conv_user_id_idx").on(table.userId),
     index("conv_status_idx").on(table.status),
     index("conv_created_idx").on(table.createdAt),
+    index("conv_user_status_idx").on(table.userId, table.status),
+    index("conv_user_created_idx").on(table.userId, table.createdAt),
   ],
 );
 
@@ -95,6 +97,7 @@ export const messages = pgTable(
   (table) => [
     index("msg_conv_id_idx").on(table.conversationId),
     index("msg_created_idx").on(table.createdAt),
+    index("msg_conv_created_idx").on(table.conversationId, table.createdAt),
   ],
 );
 
@@ -133,6 +136,8 @@ export const inferenceLogs = pgTable(
     index("log_created_idx").on(table.createdAt),
     index("log_model_idx").on(table.model),
     index("log_session_id_idx").on(table.sessionId),
+    index("log_user_created_idx").on(table.userId, table.createdAt),
+    index("log_provider_status_idx").on(table.provider, table.status),
   ],
 );
 
@@ -160,6 +165,7 @@ export const errorEvents = pgTable(
     index("err_route_idx").on(table.route),
     index("err_user_id_idx").on(table.userId),
     index("err_created_idx").on(table.createdAt),
+    index("err_severity_created_idx").on(table.severity, table.createdAt),
   ],
 );
 
@@ -184,5 +190,6 @@ export const analyticsEvents = pgTable(
     index("ae_user_id_idx").on(table.userId),
     index("ae_created_idx").on(table.createdAt),
     index("ae_path_idx").on(table.path),
+    index("ae_type_created_idx").on(table.type, table.createdAt),
   ],
 );

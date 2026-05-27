@@ -1,4 +1,5 @@
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamEvent } from "../types";
+import { env } from "../../env";
 
 export class DeepSeekProvider implements LLMProvider {
   name = "deepseek";
@@ -26,6 +27,7 @@ export class DeepSeekProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: false,
         }),
+        signal: AbortSignal.timeout(env.LLM_REQUEST_TIMEOUT),
       });
 
       if (!res.ok) {
@@ -71,6 +73,7 @@ export class DeepSeekProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: true,
         }),
+        signal: AbortSignal.timeout(env.LLM_STREAM_TIMEOUT),
       });
 
       if (!res.ok) {

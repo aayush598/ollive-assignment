@@ -9,6 +9,7 @@ import { requireAuth } from "@/lib/auth/api";
 import { rateLimit, getRateLimitKey } from "@/lib/rate-limit";
 import { z } from "zod";
 import { augmentMessagesWithContext, storeConversationTurn } from "@/lib/vector/context";
+import { env } from "@/lib/env";
 
 const ChatRequestSchema = z.object({
   conversationId: z.string().nullish(),
@@ -68,7 +69,7 @@ async function setupConversation(
     .from(schema.messages)
     .where(eq(schema.messages.conversationId, convId))
     .orderBy(asc(schema.messages.createdAt))
-    .limit(20);
+    .limit(env.MAX_CONTEXT_MESSAGES);
 
   return {
     convId,

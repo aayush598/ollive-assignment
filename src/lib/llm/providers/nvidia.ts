@@ -1,4 +1,5 @@
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamEvent } from "../types";
+import { env } from "../../env";
 
 export class NVIDIAProvider implements LLMProvider {
   name = "nvidia";
@@ -33,6 +34,7 @@ export class NVIDIAProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: false,
         }),
+        signal: AbortSignal.timeout(env.LLM_REQUEST_TIMEOUT),
       });
 
       if (!res.ok) {
@@ -76,6 +78,7 @@ export class NVIDIAProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: true,
         }),
+        signal: AbortSignal.timeout(env.LLM_STREAM_TIMEOUT),
       });
 
       if (!res.ok) {

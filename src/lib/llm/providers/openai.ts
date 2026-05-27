@@ -1,4 +1,5 @@
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamEvent } from "../types";
+import { env } from "../../env";
 
 export class OpenAIProvider implements LLMProvider {
   name = "openai";
@@ -26,6 +27,7 @@ export class OpenAIProvider implements LLMProvider {
           temperature: req.temperature ?? 0.7,
           stream: false,
         }),
+        signal: AbortSignal.timeout(env.LLM_REQUEST_TIMEOUT),
       });
 
       if (!res.ok) {
@@ -73,6 +75,7 @@ export class OpenAIProvider implements LLMProvider {
           stream: true,
           stream_options: { include_usage: true },
         }),
+        signal: AbortSignal.timeout(env.LLM_STREAM_TIMEOUT),
       });
 
       if (!res.ok) {

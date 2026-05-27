@@ -1,5 +1,6 @@
 // Background job queue using BullMQ with Redis.
 // Falls back to in-process execution when Redis is unavailable (e.g., Vercel).
+import { logger } from "./logger";
 
 export interface JobData {
   type: string;
@@ -91,7 +92,7 @@ export async function startWorker() {
       { connection: { url: redisUrl } },
     );
     worker.on("failed", (job, err) => {
-      console.error(`[queue] Job ${job?.id} failed:`, err.message);
+      logger.error({ jobId: job?.id, error: err.message }, "Queue job failed");
     });
   } catch {
     // BullMQ not available

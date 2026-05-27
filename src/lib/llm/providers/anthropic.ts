@@ -1,4 +1,5 @@
 import type { LLMProvider, LLMRequest, LLMResponse, LLMStreamEvent } from "../types";
+import { env } from "../../env";
 
 export class AnthropicProvider implements LLMProvider {
   name = "anthropic";
@@ -30,6 +31,7 @@ export class AnthropicProvider implements LLMProvider {
           system: systemMsg?.content,
           messages: otherMessages.map((m) => ({ role: m.role, content: m.content })),
         }),
+        signal: AbortSignal.timeout(env.LLM_REQUEST_TIMEOUT),
       });
 
       if (!res.ok) {
@@ -80,6 +82,7 @@ export class AnthropicProvider implements LLMProvider {
           messages: otherMessages.map((m) => ({ role: m.role, content: m.content })),
           stream: true,
         }),
+        signal: AbortSignal.timeout(env.LLM_STREAM_TIMEOUT),
       });
 
       if (!res.ok) {

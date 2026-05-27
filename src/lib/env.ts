@@ -1,5 +1,14 @@
 import { z } from "zod";
 
+function envLog(level: "error" | "warn" | "info", msg: string, data?: Record<string, unknown>) {
+  const prefix = level === "error" ? "[ENV ERROR]" : level === "warn" ? "[ENV WARN]" : "[ENV INFO]";
+  if (data) {
+    console[level](`${prefix} ${msg}`, JSON.stringify(data, null, 2));
+  } else {
+    console[level](`${prefix} ${msg}`);
+  }
+}
+
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   BETTER_AUTH_SECRET: z.string().min(32),
@@ -22,13 +31,22 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
   ENABLE_METRICS: z.coerce.boolean().default(true),
   SENTRY_DSN: z.string().optional(),
+  ADMIN_EMAILS: z
+    .string()
+    .default("admin@example.com")
+    .transform((s) => s.split(",").map((e) => e.trim())),
+  MAX_CONTEXT_MESSAGES: z.coerce.number().int().positive().default(20),
+  LLM_REQUEST_TIMEOUT: z.coerce.number().int().positive().default(30000),
+  LLM_STREAM_TIMEOUT: z.coerce.number().int().positive().default(60000),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
 function createEnv() {
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
-    console.error("Invalid environment variables:", parsed.error.flatten().fieldErrors);
+    envLog("error", "Invalid environment variables", {
+      errors: parsed.error.flatten().fieldErrors,
+    });
     if (
       process.env.NODE_ENV === "production" &&
       process.env.NEXT_PHASE !== "phase-production-build"
@@ -52,6 +70,10 @@ function createEnv() {
       LOG_LEVEL: (process.env.LOG_LEVEL as "info") ?? "info",
       ENABLE_METRICS: process.env.ENABLE_METRICS !== "false",
       SENTRY_DSN: process.env.SENTRY_DSN,
+      ADMIN_EMAILS: process.env.ADMIN_EMAILS ?? "admin@example.com",
+      MAX_CONTEXT_MESSAGES: parseInt(process.env.MAX_CONTEXT_MESSAGES ?? "20", 10),
+      LLM_REQUEST_TIMEOUT: parseInt(process.env.LLM_REQUEST_TIMEOUT ?? "30000", 10),
+      LLM_STREAM_TIMEOUT: parseInt(process.env.LLM_STREAM_TIMEOUT ?? "60000", 10),
     });
   }
   return parsed.data;

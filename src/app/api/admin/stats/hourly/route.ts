@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { logger } from "@/lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,7 @@ export async function GET() {
 
     return Response.json({ data });
   } catch (error) {
-    console.error("Failed to fetch hourly stats:", error);
+    logger.error({ err: error }, "Failed to fetch hourly stats");
     return Response.json({ data: [] });
   }
 }

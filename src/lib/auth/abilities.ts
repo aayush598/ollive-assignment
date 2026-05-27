@@ -1,5 +1,6 @@
 // CASL-based authorization (RBAC/ABAC)
 import { AbilityBuilder, createMongoAbility, type MongoAbility } from "@casl/ability";
+import { env } from "../env";
 
 export type Action = "create" | "read" | "update" | "delete" | "manage";
 
@@ -41,7 +42,7 @@ export function definePermissionsFor(params: DefinePermissionsParams): AppAbilit
 }
 
 export function getRoleFromUser(user: { id: string; email: string }): UserRole {
-  if (user.email === "admin@example.com") {
+  if (env.ADMIN_EMAILS.includes(user.email)) {
     return "admin";
   }
   return "user";
