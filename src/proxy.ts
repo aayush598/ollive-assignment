@@ -12,13 +12,15 @@ function isAllowedOrigin(origin: string | null): boolean {
   return false;
 }
 
+const isDev = process.env.NODE_ENV === "development";
+
 const cspDirectives = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-eval' 'unsafe-inline'${isDev ? " https://vercel.live" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com",
+  `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com${isDev ? " http://localhost:3000 ws: wss:" : ""}`,
   "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
