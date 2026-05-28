@@ -26,8 +26,8 @@ const envSchema = z.object({
     .enum(["openai", "anthropic", "gemini", "deepseek", "openrouter", "nvidia"])
     .default("nvidia"),
   DEFAULT_LLM_MODEL: z.string().default("minimaxai/minimax-m2.7"),
-  QDRANT_URL: z.string().url().optional(),
-  QDRANT_API_KEY: z.string().optional(),
+  QDRANT_URL: z.preprocess((v) => (v === "" ? undefined : v), z.string().url().optional()),
+  QDRANT_API_KEY: z.preprocess((v) => (v === "" ? undefined : v), z.string().optional()),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
   ENABLE_METRICS: z.coerce.boolean().default(true),
   SENTRY_DSN: z.string().optional(),

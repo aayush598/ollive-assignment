@@ -5,8 +5,17 @@
 
 ### sudo / Docker Notes
 
-If `sudo` is configured with `requiretty`, piped passwords (e.g. `echo password | sudo -S cmd`) will **not** work.
-You must run `sudo` commands interactively in a terminal.
+If `sudo` is configured with `requiretty`, try piped passwords first:
+```bash
+echo "your-password" | sudo -S <command>
+```
+This **does work** on some `requiretty` configurations (e.g. with `pam_faillock`).
+If it fails, run `sudo` commands interactively in a terminal.
+
+If `pam_faillock` locks you after repeated failed sudo attempts:
+```bash
+sudo faillock --user $USER --reset
+```
 
 If the Docker daemon requires `sudo`, prefix docker commands or add your user to the `docker` group:
 ```bash
@@ -42,6 +51,12 @@ docker --version && docker compose version
 # Check kubectl + kustomize (optional — skip if not installed)
 which kubectl 2>/dev/null || echo "kubectl not installed (skip K8s tests)"
 which kustomize 2>/dev/null || echo "kustomize not installed (skip K8s tests)"
+
+# If no K8s cluster, install kind for local testing:
+#   curl -Lo /tmp/kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64
+#   chmod +x /tmp/kind
+#   echo "your-password" | sudo -S /tmp/kind create cluster --name llm-test
+#   echo "your-password" | sudo -S /tmp/kind get kubeconfig --name llm-test > ~/.kube/config
 
 # Install dependencies
 npm ci
@@ -769,24 +784,37 @@ curl -s http://localhost:9000/api/health | jq .
 
 ## Phase 6: Production Paths
 
+> **Docker & sudo:** If Docker requires `sudo`, prefix all `docker` and `docker compose` commands with `sudo`.
+> If `requiretty` is configured, use `echo "your-password" | sudo -S <command>` instead.
+
+> **K8s cluster:** These tests require a running Kubernetes cluster. If none is available, install `kind`:
+> ```bash
+> curl -Lo /tmp/kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64
+> chmod +x /tmp/kind
+> echo "your-password" | sudo -S /tmp/kind create cluster --name llm-test
+> echo "your-password" | sudo -S /tmp/kind get kubeconfig --name llm-test > ~/.kube/config
+> # Clean up after: echo "your-password" | sudo -S /tmp/kind delete cluster --name llm-test
+> ```
+
 ### 6.1 Docker production build
 ```bash
-docker build -f docker/Dockerfile -t llm-logger:test --no-cache .
+# Use sudo if Docker requires it
+sudo docker build -f docker/Dockerfile -t llm-logger:test --no-cache .
 ```
 - Expect successful multi-stage build.
 - Image size can be checked: `docker images llm-logger:test`
 
 ### 6.2 Docker Compose production
 ```bash
-# Start full production stack
-docker compose -f docker/docker-compose.yml up -d
+# Start full production stack (prefix with sudo if needed)
+sudo docker compose -f docker/docker-compose.yml up -d
 
 # Verify
 curl -s http://localhost:3000/api/health | jq .
 # → healthy
 
 # Tear down
-docker compose -f docker/docker-compose.yml down
+sudo docker compose -f docker/docker-compose.yml down
 ```
 
 ### 6.3 PM2 ecosystem
@@ -825,13 +853,37 @@ for f in sorted(glob.glob('k8s/*.yaml')):
 kustomize build k8s/ > /tmp/k8s-rendered.yaml
 echo "Resources: $(grep -c '^kind:' /tmp/k8s-rendered.yaml)"
 ```
-- Expected 8+ resources: Namespace, Secret, ConfigMap, StatefulSet, Service, Deployment, HPA, Ingress, Job.
+- Expected **10 resources**: Namespace, ConfigMap, Secret, Service (×2), Deployment, StatefulSet, HorizontalPodAutoscaler, Job, Ingress.
 
 ### 6.6 K8s — Dry-run apply
+> **Note:** Requires a running Kubernetes cluster. If no cluster is available, install one with `kind`:
+> ```bash
+> # Install kind (once)
+> curl -Lo /tmp/kind https://kind.sigs.k8s.io/dl/v0.27.0/kind-linux-amd64
+> chmod +x /tmp/kind
+>
+> # Create cluster (run with sudo if Docker requires it)
+> echo "your-password" | sudo -S /tmp/kind create cluster --name llm-test
+>
+> # Export kubeconfig
+> echo "your-password" | sudo -S /tmp/kind get kubeconfig --name llm-test > ~/.kube/config
+> ```
 ```bash
-kubectl apply --dry-run=client -k k8s/ 2>&1
-# → No errors (won't actually create resources)
+kubectl apply --dry-run=client --validate=false -k k8s/ 2>&1
 ```
+- Expected output (10 resources created — dry run):
+  ```
+  namespace/llm-inference-logger created (dry run)
+  configmap/llm-logger-config created (dry run)
+  secret/llm-logger-secrets created (dry run)
+  service/llm-logger-app created (dry run)
+  service/postgres created (dry run)
+  deployment.apps/llm-logger-app created (dry run)
+  statefulset.apps/postgres created (dry run)
+  horizontalpodautoscaler.autoscaling/llm-logger-app created (dry run)
+  job.batch/db-migrate created (dry run)
+  ingress.networking.k8s.io/llm-logger-ingress created (dry run)
+  ```
 
 ### 6.7 K8s — Check image references
 ```bash
@@ -840,6 +892,8 @@ grep -r 'image:' k8s/ | grep -v 'postgres'
 ```
 
 ### 6.8 K8s — Secret/Configmap inject test
+> **Note:** The deployment uses per-variable `valueFrom` references (not bulk `envFrom`).
+> This is more explicit — each env var individually references its source.
 ```bash
 python3 -c "
 import yaml
@@ -847,13 +901,19 @@ with open('k8s/app.yaml') as f:
     for doc in yaml.safe_load_all(f):
         if doc and doc.get('kind') == 'Deployment':
             c = doc['spec']['template']['spec']['containers'][0]
-            env_from = [e['configMapRef']['name'] for e in c.get('envFrom',[]) if 'configMapRef' in e]
-            secret_from = [e['secretRef']['name'] for e in c.get('envFrom',[]) if 'secretRef' in e]
-            print(f'ConfigMaps: {env_from}')
-            print(f'Secrets: {secret_from}')
+            secret_refs = set()
+            config_refs = set()
+            for e in c.get('env', []):
+                vf = e.get('valueFrom', {})
+                if 'secretKeyRef' in vf:
+                    secret_refs.add(vf['secretKeyRef']['name'])
+                if 'configMapKeyRef' in vf:
+                    config_refs.add(vf['configMapKeyRef']['name'])
+            print(f'Referenced Secrets: {sorted(secret_refs)}')
+            print(f'Referenced ConfigMaps: {sorted(config_refs)}')
 "
 ```
-- Expected: ConfigMap `llm-logger-config` and Secret `llm-logger-secrets` injected.
+- Expected: Secret `llm-logger-secrets` and ConfigMap `llm-logger-config` referenced by individual env vars.
 
 ### 6.9 GitHub Actions — CI workflow
 ```bash

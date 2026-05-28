@@ -23,7 +23,7 @@ services:
     ports:
       - "3000:3000"
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgres://postgres:postgres@postgres:5432/llmchat}
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/llmchat
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-this-in-production-min-32-chars}
       BETTER_AUTH_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
