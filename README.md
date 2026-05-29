@@ -76,57 +76,11 @@ request/response with PII redaction, real-time streaming, conversation managemen
 
 ## Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                        Next.js Application                        │
-│                                                                   │
-│  ┌────────────┐  ┌────────────┐  ┌──────────────────────────┐   │
-│  │  Chat UI   │  │   Admin    │  │    Ingestion SDK         │   │
-│  │  (React)   │  │  Dashboard │  │  (buffer + flush + PII)  │   │
-│  └──────┬─────┘  └──────┬─────┘  └────────────┬─────────────┘   │
-│         │               │                      │                  │
-│  ┌──────┴───────────────┴──────────────────────┴──────────────┐ │
-│  │                    API Routes (Next.js)                     │ │
-│  │  /api/chat  /api/ingest  /api/conversations  /api/files    │ │
-│  │  /api/auth  /api/admin/stats  /api/health  /api/search     │ │
-│  │  /api/analytics  /api/metrics  /api/csp-report             │ │
-│  └──────────────────────────┬─────────────────────────────────┘ │
-│                             │                                    │
-│  ┌──────────────────────────┴─────────────────────────────────┐ │
-│  │                 LLM Provider Registry                      │ │
-│  │  OpenAI  │  Anthropic  │  Gemini  │  DeepSeek  │  OpenRouter│ │
-│  │  ───────────────────────────────────────────────────────── │ │
-│  │  generate() + generateStream() — unified interface         │ │
-│  └──────────────────────────┬─────────────────────────────────┘ │
-│                             │                                    │
-│  ┌──────────────────────────┴─────────────────────────────────┐ │
-│  │                  Ingestion Pipeline                        │ │
-│  │  Validate (Zod) → Redact PII → Extract Metadata → Store   │ │
-│  │  ───────────────────────────────────────────────────────── │ │
-│  │  Batch processing with 207 Multi-Status on partial failures│ │
-│  └──────────────────────────┬─────────────────────────────────┘ │
-│                             │                                    │
-│  ┌──────────────────────────┴─────────────────────────────────┐ │
-│  │          PostgreSQL 16 (Drizzle ORM)                      │ │
-│  │  users  sessions  conversations  messages                 │ │
-│  │  inference_logs  error_events  analytics_events           │ │
-│  │  ───────────────────────────────────────────────────────── │ │
-│  │  NOTIFY trigger on inference_logs for event-driven consumers│ │
-│  └────────────────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────────────────┘
-
-     ┌──────────────┐    ┌──────────────┐    ┌──────────────────┐
-     │   Redis      │    │    MinIO     │    │   Typesense      │
-     │  Cache/Queue │    │  S3 Storage  │    │  Full-Text Search│
-     └──────────────┘    └──────────────┘    └──────────────────┘
-            │                    │                    │
-     ┌──────┴────────────────────┴────────────────────┴──────────┐
-     │                     Observability Stack                   │
-     │  Prometheus │ Grafana │ Loki │ Tempo │ GlitchTip         │
-     │  Uptime Kuma │ CrowdSec │ cAdvisor │ Node Exporter       │
-     │  Caddy Reverse Proxy (auto TLS)                           │
-     └───────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <img src="./public/screenshots/chatbot.jpeg" alt="Chatbot Interface" width="700" />
+  <br/>
+  <em>LLM Chat Interface — multi-provider streaming chat with real-time inference logging</em>
+</p>
 
 ### Data Flow
 
