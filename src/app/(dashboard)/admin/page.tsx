@@ -77,7 +77,7 @@ export default function AdminDashboard() {
   if (loading || !stats) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -86,9 +86,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <span className="text-sm text-gray-500">Auto-refreshes every 15s</span>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
+          <p className="text-sm text-slate-500 mt-1">Real-time analytics and monitoring</p>
+        </div>
+        <span className="text-xs text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full font-medium">
+          Auto-refresh 15s
+        </span>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -108,36 +113,39 @@ export default function AdminDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Card>
+        <Card variant="brand">
           <CardHeader>
-            <h2 className="font-semibold text-gray-900">Hourly Requests (24h)</h2>
+            <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-indigo-500" />
+              Hourly Requests (24h)
+            </h2>
           </CardHeader>
           <CardContent>
             {stats.hourlyBreakdown.length === 0 ? (
-              <p className="text-gray-500 text-sm py-4 text-center">No data yet</p>
+              <p className="text-slate-500 text-sm py-4 text-center">No data yet</p>
             ) : (
               <div className="space-y-1">
                 {stats.hourlyBreakdown.map((h) => (
                   <div key={h.hour} className="flex items-center gap-3">
-                    <span className="text-xs text-gray-500 w-32 shrink-0 font-mono">
+                    <span className="text-xs text-slate-500 w-32 shrink-0 font-mono">
                       {new Date(h.hour).toLocaleString("en-US", {
                         month: "short",
                         day: "numeric",
                         hour: "2-digit",
                       })}
                     </span>
-                    <div className="flex-1 bg-gray-100 rounded-full h-5 overflow-hidden">
+                    <div className="flex-1 bg-slate-100 rounded-full h-5 overflow-hidden">
                       <div
-                        className="bg-blue-500 h-full rounded-full transition-all"
+                        className="bg-gradient-to-r from-indigo-500 to-blue-500 h-full rounded-full transition-all"
                         style={{ width: `${(h.requests / maxHourlyReqs) * 100}%` }}
                       />
                     </div>
-                    <span className="text-xs text-gray-600 w-16 text-right font-mono">
+                    <span className="text-xs text-slate-600 w-16 text-right font-mono">
                       {h.requests}
                     </span>
                     {h.errors > 0 && (
-                      <span className="text-xs text-red-500 w-8 text-right font-mono">
-                        {h.errors}err
+                      <span className="text-xs text-red-500 w-10 text-right font-mono">
+                        {h.errors}e
                       </span>
                     )}
                   </div>
@@ -147,13 +155,16 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card variant="brand">
           <CardHeader>
-            <h2 className="font-semibold text-gray-900">Provider Breakdown</h2>
+            <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-indigo-500" />
+              Provider Breakdown
+            </h2>
           </CardHeader>
           <CardContent>
             {Object.keys(stats.byProvider).length === 0 ? (
-              <p className="text-gray-500 text-sm py-4 text-center">No data yet</p>
+              <p className="text-slate-500 text-sm py-4 text-center">No data yet</p>
             ) : (
               <div className="space-y-3">
                 {Object.entries(stats.byProvider).map(([provider, data]) => {
@@ -164,20 +175,20 @@ export default function AdminDashboard() {
                   return (
                     <div key={provider}>
                       <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-900 capitalize">
+                        <span className="text-sm font-medium text-slate-900 capitalize">
                           {provider}
                         </span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-slate-500">
                           {data.count} req · {data.avgLatencyMs.toFixed(0)}ms avg
                         </span>
                       </div>
-                      <div className="bg-gray-100 rounded-full h-3 overflow-hidden">
+                      <div className="bg-slate-100 rounded-full h-3 overflow-hidden">
                         <div
-                          className="bg-indigo-500 h-full rounded-full transition-all"
+                          className="bg-gradient-to-r from-indigo-500 to-violet-500 h-full rounded-full transition-all"
                           style={{ width: `${(data.count / maxCount) * 100}%` }}
                         />
                       </div>
-                      <div className="flex justify-between text-xs text-gray-400 mt-0.5">
+                      <div className="flex justify-between text-xs text-slate-400 mt-0.5">
                         <span>{data.totalTokens.toLocaleString()} tokens</span>
                         {data.errors > 0 && (
                           <span className="text-red-400">{data.errors} errors</span>
@@ -193,14 +204,20 @@ export default function AdminDashboard() {
       </div>
 
       {stats.recentErrors.length > 0 && (
-        <Card>
+        <Card variant="brand">
           <CardHeader>
-            <h2 className="font-semibold text-gray-900">Recent Errors</h2>
+            <h2 className="font-semibold text-slate-900 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-red-500" />
+              Recent Errors
+            </h2>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {stats.recentErrors.map((e) => (
-                <div key={e.id} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
+                <div
+                  key={e.id}
+                  className="flex items-start gap-3 p-3 bg-red-50/80 rounded-xl border border-red-100"
+                >
                   <div className="w-2 h-2 mt-1.5 bg-red-500 rounded-full shrink-0" />
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-red-800">
@@ -231,25 +248,25 @@ function StatCard({
   color?: "blue" | "green" | "red" | "yellow" | "gray";
 }) {
   const colorClasses = {
-    blue: "border-blue-200 bg-blue-50",
-    green: "border-green-200 bg-green-50",
+    blue: "border-indigo-100 bg-indigo-50/50",
+    green: "border-emerald-200 bg-emerald-50",
     red: "border-red-200 bg-red-50",
-    yellow: "border-yellow-200 bg-yellow-50",
-    gray: "border-gray-200 bg-gray-50",
+    yellow: "border-amber-200 bg-amber-50",
+    gray: "border-slate-200 bg-slate-50",
   };
 
   const textColors = {
-    blue: "text-blue-700",
-    green: "text-green-700",
+    blue: "text-indigo-700",
+    green: "text-emerald-700",
     red: "text-red-700",
-    yellow: "text-yellow-700",
-    gray: "text-gray-700",
+    yellow: "text-amber-700",
+    gray: "text-slate-700",
   };
 
   return (
-    <Card className={`${colorClasses[color]} border-2`}>
+    <Card variant="brand" className={colorClasses[color]}>
       <CardContent className="py-3">
-        <p className="text-sm text-gray-500 font-medium">{label}</p>
+        <p className="text-sm text-slate-500 font-medium">{label}</p>
         <p className={`text-2xl font-bold ${textColors[color]} mt-1`}>{value}</p>
       </CardContent>
     </Card>

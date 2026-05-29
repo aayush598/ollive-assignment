@@ -109,7 +109,7 @@ export default function ChatPage() {
   if (!isLoaded) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
       </div>
     );
   }
@@ -127,16 +127,20 @@ export default function ChatPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)]">
       <div className="flex-1 flex flex-col max-w-4xl mx-auto w-full px-4">
-        <div className="flex items-center justify-between py-4 border-b border-gray-200">
-          <h1 className="text-lg font-semibold">Chat</h1>
+        <div className="flex items-center justify-between py-4 border-b border-slate-200">
+          <div className="flex items-center gap-3">
+            <h1 className="text-lg font-semibold text-slate-900">Chat</h1>
+            <span className="w-1 h-1 rounded-full bg-slate-300" />
+            <span className="text-xs text-slate-400 font-medium">AI Ops TaskFlow</span>
+          </div>
           <div className="flex items-center gap-3">
             {modelsLoading ? (
-              <div className="h-9 w-48 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="h-9 w-48 bg-slate-100 rounded-lg animate-pulse" />
             ) : (
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="text-sm border border-gray-300 rounded-lg px-3 py-1.5 bg-white min-w-[200px]"
+                className="text-sm border border-slate-200 rounded-xl px-3 py-1.5 bg-white min-w-[200px] text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                 disabled={!hasModels}
               >
                 {!hasModels && <option value="">No models available</option>}
@@ -160,11 +164,23 @@ export default function ChatPage() {
         <div className="flex-1 overflow-y-auto py-4 space-y-4">
           {messages.length === 0 && !isStreaming && (
             <div className="text-center py-20">
-              <div className="text-4xl mb-4">🤖</div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-2">Start a conversation</h2>
-              <p className="text-gray-500 max-w-md mx-auto">
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-indigo-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-slate-900 mb-2">Start a conversation</h2>
+              <p className="text-slate-500 max-w-md mx-auto text-sm">
                 {hasModels
-                  ? "Choose a model and start chatting."
+                  ? "Choose a model below and start chatting with AI."
                   : "No LLM providers configured. Add API keys to your .env file."}
               </p>
             </div>
@@ -177,13 +193,15 @@ export default function ChatPage() {
             >
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                  msg.role === "user" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-900"
+                  msg.role === "user"
+                    ? "bg-gradient-to-br from-indigo-600 to-blue-600 text-white shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-800 shadow-sm"
                 }`}
               >
                 {msg.role === "user" ? (
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 ) : (
-                  <div className="text-sm prose prose-sm max-w-none">
+                  <div className="text-sm prose prose-sm max-w-none prose-headings:text-slate-800 prose-a:text-indigo-600">
                     <Markdown content={msg.content} />
                   </div>
                 )}
@@ -193,31 +211,31 @@ export default function ChatPage() {
 
           {isStreaming && (
             <div className="flex justify-start">
-              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-gray-100 text-gray-900">
+              <div className="max-w-[85%] rounded-2xl px-4 py-3 bg-white border border-slate-200 text-slate-800 shadow-sm">
                 {streamingContent ? (
                   <>
                     <div className="text-sm prose prose-sm max-w-none">
                       <Markdown content={streamingContent} />
                     </div>
-                    <span className="inline-block w-2 h-4 bg-gray-400 animate-pulse ml-0.5" />
+                    <span className="inline-block w-2 h-4 bg-indigo-400 animate-pulse ml-0.5 rounded-sm" />
                   </>
                 ) : (
                   <div className="flex items-center gap-3 py-2">
                     <div className="flex gap-1.5">
                       <span
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
                         style={{ animationDelay: "0ms" }}
                       />
                       <span
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
                         style={{ animationDelay: "150ms" }}
                       />
                       <span
-                        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                        className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce"
                         style={{ animationDelay: "300ms" }}
                       />
                     </div>
-                    <span className="text-sm text-gray-500 font-medium">
+                    <span className="text-sm text-slate-500 font-medium">
                       Generating response...
                     </span>
                   </div>
@@ -235,14 +253,14 @@ export default function ChatPage() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div className="border-t border-gray-200 py-4">
+        <div className="border-t border-slate-200 py-4">
           <form onSubmit={handleSend} className="flex gap-3 items-end">
-            <div className="flex-1">
+            <div className="flex-1 relative">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Type your message..."
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-400"
+                className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm bg-white text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent disabled:bg-slate-50 disabled:text-slate-400 transition-shadow duration-200"
                 disabled={isStreaming || !hasModels}
               />
             </div>
@@ -251,7 +269,7 @@ export default function ChatPage() {
                 Stop
               </Button>
             ) : (
-              <Button type="submit" disabled={!input.trim() || !hasModels}>
+              <Button type="submit" variant="brand" disabled={!input.trim() || !hasModels}>
                 Send
               </Button>
             )}

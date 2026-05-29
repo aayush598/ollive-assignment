@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Bricolage_Grotesque, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
@@ -17,40 +17,55 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const bricolage = Bricolage_Grotesque({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-mono-alt",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   title: {
-    default: "LLM Inference Logger",
-    template: "%s | LLM Inference Logger",
+    default: "AI Ops TaskFlow",
+    template: "%s | AI Ops TaskFlow",
   },
   description:
-    "Lightweight inference logging and ingestion system for LLM applications. Track, monitor, and analyze your LLM API calls.",
+    "The workflow platform AI ops teams love. Manage annotation tasks, review pipelines, evaluation workflows, and QA processes with built-in AI assistance.",
   keywords: [
+    "AI ops",
+    "workflow",
+    "evaluation",
+    "annotation",
     "LLM",
     "inference",
     "logging",
     "monitoring",
     "AI",
     "machine learning",
-    "observability",
   ],
-  authors: [{ name: "LLM Inference Logger" }],
-  creator: "LLM Inference Logger",
-  publisher: "LLM Inference Logger",
+  authors: [{ name: "AI Ops TaskFlow" }],
+  creator: "AI Ops TaskFlow",
+  publisher: "AI Ops TaskFlow",
   metadataBase: new URL(baseUrl),
   openGraph: {
-    title: "LLM Inference Logger",
-    description: "Lightweight inference logging and ingestion system for LLM applications.",
+    title: "AI Ops TaskFlow",
+    description: "The workflow platform AI ops teams love.",
     url: baseUrl,
-    siteName: "LLM Inference Logger",
+    siteName: "AI Ops TaskFlow",
     locale: "en_US",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "LLM Inference Logger",
-    description: "Lightweight inference logging and ingestion system for LLM applications.",
+    title: "AI Ops TaskFlow",
+    description: "The workflow platform AI ops teams love.",
   },
   robots: {
     index: true,
@@ -71,13 +86,10 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "LLM Logger",
+    title: "AI Ops TaskFlow",
   },
   formatDetection: {
     telephone: false,
-  },
-  other: {
-    "mobile-web-app-capable": "yes",
   },
 };
 
@@ -87,15 +99,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} ${ibmPlexMono.variable} h-full antialiased`}
+    >
       <head>
-        <meta name="application-name" content="LLM Logger" />
+        <meta name="application-name" content="AI Ops TaskFlow" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="LLM Logger" />
+        <meta name="apple-mobile-web-app-title" content="AI Ops TaskFlow" />
         <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
       </head>
-      <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
+      <body className="min-h-full flex flex-col bg-white text-slate-900">
         <ClerkProvider>
           {children}
           <Suspense fallback={null}>

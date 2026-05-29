@@ -113,36 +113,72 @@ export default function ConversationsPage() {
 
   function getStatusBadge(status: string) {
     const styles: Record<string, string> = {
-      active: "bg-green-100 text-green-700",
-      cancelled: "bg-gray-100 text-gray-600",
-      completed: "bg-blue-100 text-blue-700",
+      active: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+      cancelled: "bg-slate-50 text-slate-600 border border-slate-200",
+      completed: "bg-indigo-50 text-indigo-700 border border-indigo-200",
     };
-    return styles[status] ?? "bg-gray-100 text-gray-600";
+    return styles[status] ?? "bg-slate-50 text-slate-600 border border-slate-200";
   }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+        <div className="animate-spin h-8 w-8 border-4 border-indigo-600 border-t-transparent rounded-full" />
       </div>
     );
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Conversations {total > 0 && `(${total})`}</h1>
-        <Button onClick={() => router.push("/chat")}>+ New Chat</Button>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">
+            Conversations{" "}
+            {total > 0 && <span className="text-slate-400 font-normal">({total})</span>}
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">Browse and resume your past conversations</p>
+        </div>
+        <Button variant="brand" onClick={() => router.push("/chat")}>
+          <svg
+            className="w-4 h-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          New Chat
+        </Button>
       </div>
 
       {conversations.length === 0 ? (
-        <Card>
+        <Card variant="brand">
           <CardContent>
             <div className="text-center py-12">
-              <div className="text-4xl mb-4">📋</div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">No conversations yet</h2>
-              <p className="text-gray-500 mb-4">Start a chat to see your conversations here.</p>
-              <Button onClick={() => router.push("/chat")}>Start Chatting</Button>
+              <div className="w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 flex items-center justify-center">
+                <svg
+                  className="w-8 h-8 text-indigo-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold text-slate-900 mb-2">No conversations yet</h2>
+              <p className="text-slate-500 mb-6 text-sm">
+                Start a chat to see your conversations here.
+              </p>
+              <Button variant="brand" onClick={() => router.push("/chat")}>
+                Start Chatting
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -150,20 +186,20 @@ export default function ConversationsPage() {
         <>
           <div className="space-y-3">
             {conversations.map((conv) => (
-              <Card key={conv.id}>
+              <Card key={conv.id} variant="brand">
                 <CardContent className="flex items-center justify-between py-4">
                   <div className="flex-1 min-w-0 mr-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-medium text-gray-900 truncate">{conv.title}</h3>
+                    <div className="flex items-center gap-2 mb-1.5">
+                      <h3 className="font-medium text-slate-900 truncate">{conv.title}</h3>
                       <span
-                        className={`text-xs px-2 py-0.5 rounded-full font-medium ${getStatusBadge(conv.status)}`}
+                        className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${getStatusBadge(conv.status)}`}
                       >
                         {conv.status}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-slate-500">
                       {conv.messageCount} messages
-                      {conv.totalTokens ? ` · ${conv.totalTokens} tokens` : ""}
+                      {conv.totalTokens ? ` · ${conv.totalTokens.toLocaleString()} tokens` : ""}
                       {conv.model ? ` · ${conv.model}` : ""}
                     </p>
                   </div>
@@ -190,11 +226,13 @@ export default function ConversationsPage() {
           <div ref={sentinelRef} className="py-4">
             {loadingMore && (
               <div className="flex justify-center">
-                <div className="animate-spin h-6 w-6 border-2 border-blue-600 border-t-transparent rounded-full" />
+                <div className="animate-spin h-6 w-6 border-2 border-indigo-600 border-t-transparent rounded-full" />
               </div>
             )}
             {!hasMore && conversations.length > 0 && (
-              <p className="text-center text-sm text-gray-400">Showing all {total} conversations</p>
+              <p className="text-center text-sm text-slate-400">
+                Showing all {total} conversations
+              </p>
             )}
           </div>
         </>
