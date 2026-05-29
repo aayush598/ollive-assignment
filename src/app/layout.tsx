@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Providers } from "@/components/providers";
+import { ClerkProvider } from "@clerk/nextjs";
 import { AnalyticsTracker } from "@/components/analytics-tracker";
 import { PwaRegister } from "@/components/pwa-register";
 import { WebVitals } from "@/lib/web-vitals";
+import { Suspense } from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -95,12 +96,14 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
       </head>
       <body className="min-h-full flex flex-col bg-gray-50 text-gray-900">
-        <Providers>
+        <ClerkProvider>
           {children}
-          <AnalyticsTracker />
+          <Suspense fallback={null}>
+            <AnalyticsTracker />
+          </Suspense>
           <WebVitals />
           <PwaRegister />
-        </Providers>
+        </ClerkProvider>
       </body>
     </html>
   );

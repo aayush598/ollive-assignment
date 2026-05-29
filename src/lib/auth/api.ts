@@ -1,4 +1,5 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import * as schema from "@/lib/db/schema";
 
@@ -13,6 +14,20 @@ export async function getSession() {
   const name = clerkUser.fullName ?? clerkUser.firstName ?? "User";
   const email = clerkUser.emailAddresses[0]?.emailAddress ?? "";
   const image = clerkUser.imageUrl;
+
+  const existing = await db
+    .select({ id: schema.user.id })
+    .from(schema.user)
+    .where(sql`${schema.user.email} = ${email}`)
+    .limit(1);
+
+  if (existing.length > 0) {
+    const userId = existing[0].id;
+    await db.update(schema.user).set({ name, email, image }).where(eq(schema.user.id, userId));
+    return {
+      user: { id: userId, name, email, image },
+    };
+  }
 
   await db
     .insert(schema.user)

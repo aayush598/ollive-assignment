@@ -44,6 +44,7 @@
     "@aws-sdk/lib-storage": "^3.1053.0",
     "@better-auth/drizzle-adapter": "^1.6.11",
     "@casl/ability": "^7.0.0",
+    "@clerk/nextjs": "^7.4.2",
     "@hookform/resolvers": "^5.4.0",
     "@opentelemetry/api": "^1.9.1",
     "@opentelemetry/instrumentation": "^0.218.0",

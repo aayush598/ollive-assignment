@@ -1,36 +1,14 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { clerkMiddleware } from "@clerk/nextjs/server";
 
-const ALLOWED_ORIGINS = ["http://localhost:3000", process.env.NEXT_PUBLIC_APP_URL].filter(
-  Boolean,
-) as string[];
-
-function isAllowedOrigin(origin: string | null): boolean {
-  if (!origin) return true;
-  if (ALLOWED_ORIGINS.includes(origin)) return true;
-  if (process.env.NODE_ENV === "development") return true;
-  return false;
-}
-
-export function proxy(request: NextRequest) {
-  const origin = request.headers.get("origin");
-  if (request.method === "POST" && !isAllowedOrigin(origin)) {
-    return new NextResponse(null, { status: 403 });
-  }
-
-  const response = NextResponse.next();
-
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
-  response.headers.set("X-DNS-Prefetch-Control", "off");
-  response.headers.set("X-XSS-Protection", "0");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-
-  return response;
-}
+export default clerkMiddleware();
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: [
+    // Skip Next.js internals and all static files, unless found in search params
+    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
+    // Always run for Clerk's auto-proxy path
+    "/__clerk/(.*)",
+    // Always run for API routes
+    "/(api|trpc)(.*)",
+  ],
 };

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { authClient } from "@/lib/auth/client";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useChatStore } from "@/store/chat-store";
@@ -12,6 +12,7 @@ const PAGE_SIZE = 20;
 
 export default function ConversationsPage() {
   const router = useRouter();
+  const { isSignedIn, isLoaded } = useUser();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -21,51 +22,50 @@ export default function ConversationsPage() {
   const { setMessages, setCurrentConversation } = useChatStore();
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const loadConversations = useCallback(
-    async (cursor?: string | null) => {
-      if (cursor) {
-        setLoadingMore(true);
-      } else {
-        setLoading(true);
-      }
+  useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
-      try {
-        const session = await authClient.getSession();
-        if (!session.data) {
-          router.push("/login");
-          return;
+  const loadConversations = useCallback(async (cursor?: string | null) => {
+    if (cursor) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      const params = new URLSearchParams();
+      params.set("limit", String(PAGE_SIZE));
+      if (cursor) params.set("cursor", cursor);
+
+      const res = await fetch(`/api/conversations?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (cursor) {
+          setConversations((prev) => [...prev, ...data.conversations]);
+        } else {
+          setConversations(data.conversations);
         }
-
-        const params = new URLSearchParams();
-        params.set("limit", String(PAGE_SIZE));
-        if (cursor) params.set("cursor", cursor);
-
-        const res = await fetch(`/api/conversations?${params}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (cursor) {
-            setConversations((prev) => [...prev, ...data.conversations]);
-          } else {
-            setConversations(data.conversations);
-          }
-          setHasMore(data.pagination.hasMore);
-          setNextCursor(data.pagination.nextCursor);
-          setTotal(data.pagination.total);
-        }
-      } catch {
-        // handle error
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
+        setHasMore(data.pagination.hasMore);
+        setNextCursor(data.pagination.nextCursor);
+        setTotal(data.pagination.total);
       }
-    },
-    [router],
-  );
+    } catch {
+      // handle error
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    loadConversations();
-  }, [loadConversations]);
+    if (isSignedIn) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      loadConversations();
+    }
+  }, [isSignedIn, loadConversations]);
 
   useEffect(() => {
     if (!hasMore || loadingMore) return;

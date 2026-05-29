@@ -2,11 +2,11 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { useChatStore } from "@/store/chat-store";
 import { useStreamChat } from "@/hooks/use-stream-chat";
 import { Button } from "@/components/ui/button";
 import { Markdown } from "@/components/ui/markdown";
-import { authClient } from "@/lib/auth/client";
 
 interface AvailableModel {
   provider: string;
@@ -16,6 +16,7 @@ interface AvailableModel {
 
 export default function ChatPage() {
   const router = useRouter();
+  const { isSignedIn, isLoaded } = useUser();
   const [input, setInput] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [availableModels, setAvailableModels] = useState<AvailableModel[]>([]);
@@ -37,13 +38,13 @@ export default function ChatPage() {
   const { sendMessage, cancel, isStreaming } = useStreamChat();
 
   useEffect(() => {
+    if (isLoaded && !isSignedIn) {
+      router.push("/sign-in");
+      return;
+    }
+
     async function loadModels() {
       try {
-        const session = await authClient.getSession();
-        if (!session.data) {
-          router.push("/login");
-          return;
-        }
         const res = await fetch("/api/models");
         if (res.ok) {
           const data = await res.json();
@@ -61,8 +62,11 @@ export default function ChatPage() {
         setModelsLoading(false);
       }
     }
-    loadModels();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+    if (isSignedIn) {
+      loadModels();
+    }
+  }, [isLoaded, isSignedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -100,6 +104,14 @@ export default function ChatPage() {
     setCurrentConversation(null);
     setStreamingContent("");
     setError(null);
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="animate-spin h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   const hasModels = availableModels.length > 0;

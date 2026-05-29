@@ -2,35 +2,18 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect, type ReactNode } from "react";
-import { authClient } from "@/lib/auth/client";
-import { useRouter } from "next/navigation";
+import { type ReactNode } from "react";
+import { UserButton, useUser } from "@clerk/nextjs";
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [showMenu, setShowMenu] = useState(false);
-  const [userName, setUserName] = useState<string | null>(null);
-
-  useEffect(() => {
-    authClient.getSession().then((session) => {
-      if (session.data?.user?.name) {
-        setUserName(session.data.user.name);
-      }
-    });
-  }, []);
+  const { user } = useUser();
 
   const navItems = [
     { href: "/chat", label: "Chat", icon: "💬" },
     { href: "/conversations", label: "Conversations", icon: "📋" },
     { href: "/admin", label: "Admin", icon: "📊" },
   ];
-
-  async function handleSignOut() {
-    await authClient.signOut();
-    router.push("/");
-    router.refresh();
-  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -61,27 +44,13 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                 ))}
               </nav>
             </div>
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center">
-                  <span className="text-xs font-medium text-blue-700">
-                    {userName ? userName.charAt(0).toUpperCase() : "?"}
-                  </span>
-                </div>
-              </button>
-              {showMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-1 z-50">
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  >
-                    Sign out
-                  </button>
-                </div>
+            <div className="flex items-center gap-3">
+              {user && (
+                <span className="text-sm text-gray-600 hidden sm:inline">
+                  {user.fullName ?? user.firstName}
+                </span>
               )}
+              <UserButton />
             </div>
           </div>
         </div>
