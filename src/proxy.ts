@@ -1,51 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const ALLOWED_ORIGINS = [
-  "http://localhost:3000",
-  process.env.NEXT_PUBLIC_APP_URL,
-  process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
-].filter(Boolean) as string[];
+const ALLOWED_ORIGINS = ["http://localhost:3000", process.env.NEXT_PUBLIC_APP_URL].filter(
+  Boolean,
+) as string[];
 
 function isAllowedOrigin(origin: string | null): boolean {
   if (!origin) return true;
   if (ALLOWED_ORIGINS.includes(origin)) return true;
-  // Allow *.vercel.app origins in production (preview deployments)
-  if (origin.endsWith(".vercel.app")) return true;
   if (process.env.NODE_ENV === "development") return true;
   return false;
 }
-
-const isVercel = process.env.VERCEL === "1";
-const isDev = process.env.NODE_ENV === "development";
-
-// Vercel injects toolbar & feedback scripts that need CSP exceptions
-const vercelScripts = isVercel
-  ? " https://vercel.live https://*.vercel.live https://*.vercel.com"
-  : "";
-const vercelConnect = isVercel
-  ? " https://vercel.live https://*.vercel.live https://*.vercel.com wss://*.vercel.live"
-  : "";
-const vercelImg = isVercel ? " https://vercel.live https://*.vercel.live https://vercel.com" : "";
-const vercelFrame = isVercel ? " https://vercel.live https://*.vercel.live" : "";
-const vercelFont = isVercel ? " https://vercel.live https://*.vercel.live" : "";
-const devExtras = isDev ? " ws: wss:" : "";
-
-const cspDirectives = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-eval' 'unsafe-inline'${vercelScripts}`,
-  `style-src 'self' 'unsafe-inline'${vercelScripts}`,
-  `img-src 'self' data: blob:${vercelImg}`,
-  `font-src 'self'${vercelFont}`,
-  `connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com${vercelConnect}${devExtras}`,
-  `frame-src 'self'${vercelFrame}`,
-  "frame-ancestors 'none'",
-  "form-action 'self'",
-  "base-uri 'self'",
-  "object-src 'none'",
-  "report-uri /api/csp-report",
-  "report-to csp-endpoint",
-].join("; ");
 
 export function proxy(request: NextRequest) {
   const origin = request.headers.get("origin");
@@ -62,8 +27,6 @@ export function proxy(request: NextRequest) {
   response.headers.set("X-DNS-Prefetch-Control", "off");
   response.headers.set("X-XSS-Protection", "0");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
-  response.headers.set("Content-Security-Policy", cspDirectives);
-  response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
 
   return response;
 }
