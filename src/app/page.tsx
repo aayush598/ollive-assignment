@@ -1491,6 +1491,562 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ══════════ ARCHITECTURE INFOGRAPHIC ══════════ */}
+      <section className="py-20 px-5 md:px-8 bg-white border-t border-slate-100">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="pill-violet inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-['IBM_Plex_Mono',monospace] font-bold border border-violet-200 bg-violet-50 text-violet-700 uppercase tracking-wider mb-4">
+              System Architecture
+            </span>
+            <h2 className="font-['Bricolage_Grotesque',sans-serif] text-3xl md:text-4xl text-slate-900 leading-tight mb-3">
+              End-to-end ingestion pipeline
+            </h2>
+            <p className="text-slate-500 max-w-2xl mx-auto text-sm">
+              Every LLM call flows through a lightweight SDK, validation layer, PII redaction, and
+              storage — all within a single Next.js process.
+            </p>
+          </div>
+
+          {/* Architecture Flow Diagram */}
+          <div className="relative bg-slate-900 rounded-2xl p-6 md:p-8 overflow-hidden shadow-xl border border-slate-800">
+            <div
+              className="absolute inset-0 opacity-[0.03]"
+              style={{
+                backgroundImage: "radial-gradient(circle at 1px 1px, white 1px, transparent 0)",
+                backgroundSize: "20px 20px",
+              }}
+            />
+            <div className="relative z-10">
+              {/* Layer labels */}
+              <div className="grid grid-cols-6 gap-2 mb-6">
+                {[
+                  "APPLICATION",
+                  "SDK LAYER",
+                  "INGESTION API",
+                  "PIPELINE",
+                  "STORAGE",
+                  "OBSERVABILITY",
+                ].map((l, i) => (
+                  <div key={i} className="text-center">
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[8px] text-slate-500 uppercase tracking-[0.2em]">
+                      {l}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Flow nodes */}
+              <div className="grid grid-cols-6 gap-2 mb-3">
+                {[
+                  {
+                    label: "Your App",
+                    icon: "M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z",
+                    color: "bg-indigo-500",
+                  },
+                  {
+                    label: "SDK Wrapper",
+                    icon: "M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4",
+                    color: "bg-violet-500",
+                  },
+                  { label: "/api/ingest", icon: "M5 12h14M12 5l7 7-7 7", color: "bg-blue-500" },
+                  {
+                    label: "Validate",
+                    icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+                    color: "bg-emerald-500",
+                  },
+                  {
+                    label: "PostgreSQL",
+                    icon: "M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4",
+                    color: "bg-amber-500",
+                  },
+                  {
+                    label: "Dashboards",
+                    icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z",
+                    color: "bg-rose-500",
+                  },
+                ].map((node, i) => (
+                  <div key={i} className="flex flex-col items-center gap-2 group">
+                    <div
+                      className={`w-full aspect-square max-w-[90px] mx-auto ${node.color} rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 group-hover:scale-105 group-hover:shadow-xl`}
+                    >
+                      <svg
+                        className="w-6 h-6 md:w-8 md:h-8 text-white"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.5}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d={node.icon} />
+                      </svg>
+                    </div>
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-slate-400 text-center leading-tight group-hover:text-white transition-colors">
+                      {node.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Flow arrows */}
+              <div className="grid grid-cols-6 gap-2 mb-6">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="flex items-center justify-center">
+                    <svg
+                      className="w-8 h-4 text-slate-600 animate-pulse"
+                      style={{ animationDelay: `${i * 300}ms` }}
+                      fill="none"
+                      viewBox="0 0 24 8"
+                      stroke="currentColor"
+                      strokeWidth={1.5}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M1 4h20m0 0l-4-3m4 3l-4 3"
+                      />
+                    </svg>
+                  </div>
+                ))}
+                <div />
+              </div>
+
+              {/* Pipeline detail row */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  {
+                    label: "SDK Buffers",
+                    desc: "In-memory buffer (max 50 logs), auto-flush every 5s or on process exit",
+                    color: "border-violet-800 bg-violet-950/40",
+                  },
+                  {
+                    label: "Zod Validation",
+                    desc: "Provider, model, status, tokens, latency all validated before insert",
+                    color: "border-blue-800 bg-blue-950/40",
+                  },
+                  {
+                    label: "PII Redaction",
+                    desc: "Email, phone, SSN, credit card patterns detected and redacted",
+                    color: "border-emerald-800 bg-emerald-950/40",
+                  },
+                ].map((detail, i) => (
+                  <div
+                    key={i}
+                    className={`rounded-xl border ${detail.color} p-4 backdrop-blur-sm transition-all duration-200 hover:scale-[1.02]`}
+                  >
+                    <p className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-white mb-1">
+                      {detail.label}
+                    </p>
+                    <p className="text-[11px] text-slate-400 leading-relaxed">{detail.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Metrics row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+            {[
+              {
+                label: "Avg Ingest Time",
+                value: "24ms",
+                sub: "P95: 48ms",
+                color: "border-indigo-200 bg-indigo-50",
+              },
+              {
+                label: "Batch Size",
+                value: "50",
+                sub: "Max per request",
+                color: "border-violet-200 bg-violet-50",
+              },
+              {
+                label: "Throughput",
+                value: "1.2K/min",
+                sub: "Per instance",
+                color: "border-emerald-200 bg-emerald-50",
+              },
+              {
+                label: "Uptime",
+                value: "99.97%",
+                sub: "Last 30 days",
+                color: "border-blue-200 bg-blue-50",
+              },
+            ].map((m, i) => (
+              <div
+                key={i}
+                className={`rounded-xl border ${m.color} p-4 text-center transition-all duration-200 hover:shadow-md`}
+              >
+                <p className="font-['IBM_Plex_Mono',monospace] text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+                  {m.label}
+                </p>
+                <p className="font-['Bricolage_Grotesque',sans-serif] text-2xl font-bold text-slate-900">
+                  {m.value}
+                </p>
+                <p className="font-['IBM_Plex_Mono',monospace] text-[10px] text-slate-400 mt-0.5">
+                  {m.sub}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ PROVIDER COMPARISON TABLE ══════════ */}
+      <section className="py-20 px-5 md:px-8 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <span className="pill-blue inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-['IBM_Plex_Mono',monospace] font-bold border border-blue-200 bg-blue-50 text-blue-700 uppercase tracking-wider mb-4">
+              Provider Comparison
+            </span>
+            <h2 className="font-['Bricolage_Grotesque',sans-serif] text-3xl md:text-4xl text-slate-900 leading-tight mb-3">
+              Six LLM providers, one SDK
+            </h2>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto">
+              Switch between providers with a single config change. Each provider implements a
+              unified{" "}
+              <code className="font-['IBM_Plex_Mono',monospace] text-xs bg-slate-200 px-1.5 py-0.5 rounded text-slate-700">
+                generate()
+              </code>{" "}
+              and{" "}
+              <code className="font-['IBM_Plex_Mono',monospace] text-xs bg-slate-200 px-1.5 py-0.5 rounded text-slate-700">
+                generateStream()
+              </code>{" "}
+              interface.
+            </p>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-slate-200 shadow-sm">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-100 border-b border-slate-200">
+                  <th className="text-left py-3.5 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Provider
+                  </th>
+                  <th className="text-left py-3.5 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Models
+                  </th>
+                  <th className="text-center py-3.5 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Streaming
+                  </th>
+                  <th className="text-center py-3.5 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Context Window
+                  </th>
+                  <th className="text-center py-3.5 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Rate Limit
+                  </th>
+                  <th className="text-center py-3.5 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                    Auth
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white">
+                {[
+                  {
+                    name: "OpenAI",
+                    models: "GPT-4.1, GPT-4.1-mini, GPT-4.1-nano",
+                    streaming: true,
+                    context: "128K",
+                    rate: "10K RPM",
+                    auth: "API Key",
+                    color: "bg-emerald-100 text-emerald-700",
+                  },
+                  {
+                    name: "Anthropic",
+                    models: "Claude Sonnet 4",
+                    streaming: true,
+                    context: "200K",
+                    rate: "4K RPM",
+                    auth: "API Key",
+                    color: "bg-indigo-100 text-indigo-700",
+                  },
+                  {
+                    name: "Gemini",
+                    models: "Gemini 2.5 Flash, 2.5 Pro",
+                    streaming: true,
+                    context: "1M",
+                    rate: "2K RPM",
+                    auth: "API Key",
+                    color: "bg-blue-100 text-blue-700",
+                  },
+                  {
+                    name: "DeepSeek",
+                    models: "DeepSeek Chat, Reasoner",
+                    streaming: true,
+                    context: "128K",
+                    rate: "500 RPM",
+                    auth: "API Key",
+                    color: "bg-violet-100 text-violet-700",
+                  },
+                  {
+                    name: "OpenRouter",
+                    models: "10+ models (unified)",
+                    streaming: true,
+                    context: "Varies",
+                    rate: "200 RPM",
+                    auth: "API Key",
+                    color: "bg-amber-100 text-amber-700",
+                  },
+                  {
+                    name: "NVIDIA",
+                    models: "Llama 3.1, Mistral, Mixtral",
+                    streaming: true,
+                    context: "128K",
+                    rate: "1K RPM",
+                    auth: "API Key",
+                    color: "bg-rose-100 text-rose-700",
+                  },
+                ].map((p, i) => (
+                  <tr
+                    key={p.name}
+                    className={`border-b border-slate-100 transition-colors hover:bg-slate-50 ${i === 0 ? "" : ""}`}
+                  >
+                    <td className="py-4 px-4">
+                      <div className="flex items-center gap-2.5">
+                        <div
+                          className={`w-2.5 h-2.5 rounded-full ${p.color.split(" ")[0].replace("bg-", "bg-")}`}
+                        />
+                        <span className="font-semibold text-slate-800">{p.name}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4 text-slate-600 font-['IBM_Plex_Mono',monospace] text-[12px]">
+                      {p.models}
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                      <span className="inline-flex items-center gap-1 text-emerald-600 font-['IBM_Plex_Mono',monospace] text-[11px]">
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2.5}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Yes
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-center font-['IBM_Plex_Mono',monospace] text-[12px] text-slate-600">
+                      {p.context}
+                    </td>
+                    <td className="py-4 px-4 text-center font-['IBM_Plex_Mono',monospace] text-[12px] text-slate-600">
+                      {p.rate}
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                      <span
+                        className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-['IBM_Plex_Mono',monospace] font-bold ${p.color}`}
+                      >
+                        {p.auth}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+            {[
+              {
+                label: "Total Models Supported",
+                value: "18+",
+                desc: "Across all providers",
+                icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+              },
+              {
+                label: "Lines of Code per Provider",
+                value: "~50",
+                desc: "Implement generate() + generateStream()",
+                icon: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
+              },
+              {
+                label: "Default Model",
+                value: "Llama 3.1 70B",
+                desc: "Free tier via NVIDIA API",
+                icon: "M13 10V3L4 14h7v7l9-11h-7z",
+              },
+            ].map((s, i) => (
+              <div
+                key={i}
+                className="rounded-xl border border-slate-200 bg-white p-5 flex items-start gap-4 transition-all duration-200 hover:shadow-md"
+              >
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center flex-shrink-0">
+                  <svg
+                    className="w-5 h-5 text-indigo-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={1.8}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d={s.icon} />
+                  </svg>
+                </div>
+                <div>
+                  <p className="font-['Bricolage_Grotesque',sans-serif] text-xl font-bold text-slate-900">
+                    {s.value}
+                  </p>
+                  <p className="text-[11px] text-slate-500 font-medium">{s.label}</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════ ROADMAP TIMELINE ══════════ */}
+      <section className="py-20 px-5 md:px-8 bg-white border-t border-slate-100">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <span className="pill-amber inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-['IBM_Plex_Mono',monospace] font-bold border border-amber-200 bg-amber-50 text-amber-700 uppercase tracking-wider mb-4">
+              Development Roadmap
+            </span>
+            <h2 className="font-['Bricolage_Grotesque',sans-serif] text-3xl md:text-4xl text-slate-900 leading-tight mb-3">
+              What we built and what&apos;s next
+            </h2>
+            <p className="text-slate-500 text-sm max-w-xl mx-auto">
+              From initial prototype to production-ready platform — the evolution of the inference
+              logging system.
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-indigo-200 via-violet-200 to-emerald-200 md:-translate-x-px" />
+
+            {[
+              {
+                phase: "Phase 1",
+                title: "Core Chat + SDK",
+                date: "Week 1",
+                items: [
+                  "Next.js 16 app with App Router setup",
+                  "Multi-provider LLM registry (OpenAI, Anthropic, etc.)",
+                  "Lightweight Ingestion SDK with buffer + flush",
+                  "Basic chat UI with streaming support",
+                  "PostgreSQL schema with Drizzle ORM",
+                ],
+                side: "left",
+                color: "border-indigo-400 bg-indigo-50",
+                dot: "bg-indigo-500",
+              },
+              {
+                phase: "Phase 2",
+                title: "Ingestion Pipeline",
+                date: "Week 2",
+                items: [
+                  "/api/ingest batch endpoint with Zod validation",
+                  "PII redaction engine (email, phone, SSN, credit card)",
+                  "Conversation CRUD API + cancel/resume lifecycle",
+                  "Admin dashboard with aggregate stats",
+                  "Rate limiting and auth middleware",
+                ],
+                side: "right",
+                color: "border-violet-400 bg-violet-50",
+                dot: "bg-violet-500",
+              },
+              {
+                phase: "Phase 3",
+                title: "Observability & DX",
+                date: "Week 3",
+                items: [
+                  "Prometheus metrics + Grafana dashboards",
+                  "Pino structured logging (Loki + Promtail)",
+                  "BullMQ background job queue with Redis",
+                  "Event-driven architecture (Postgres NOTIFY + Redis pub/sub)",
+                  "Docker Compose profiles (dev, prod, observability)",
+                ],
+                side: "left",
+                color: "border-emerald-400 bg-emerald-50",
+                dot: "bg-emerald-500",
+              },
+              {
+                phase: "Phase 4",
+                title: "Production Hardening",
+                date: "Week 4",
+                items: [
+                  "Clerk auth migration (from Better Auth)",
+                  "119 unit/integration tests across 14 files",
+                  "Kubernetes manifests (Kustomize) with HPA",
+                  "Caddy reverse proxy with auto TLS",
+                  "Recharts analytics dashboard (area, bar, pie charts)",
+                ],
+                side: "right",
+                color: "border-blue-400 bg-blue-50",
+                dot: "bg-blue-500",
+              },
+            ].map((phase, i) => (
+              <div
+                key={i}
+                className={`relative flex flex-col md:flex-row items-start gap-6 mb-10 pl-14 md:pl-0 ${
+                  phase.side === "right" ? "md:flex-row-reverse" : ""
+                }`}
+              >
+                {/* Dot */}
+                <div
+                  className={`absolute left-4 md:left-1/2 top-1 w-4 h-4 rounded-full ${phase.dot} border-4 border-white shadow-sm md:-translate-x-2 z-10`}
+                />
+
+                {/* Content */}
+                <div className={`md:w-1/2 ${phase.side === "right" ? "md:pl-10" : "md:pr-10"}`}>
+                  <div
+                    className={`rounded-xl border-2 ${phase.color} p-5 transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5`}
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        {phase.phase}
+                      </span>
+                      <span className="w-1 h-1 rounded-full bg-slate-300" />
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-slate-500">
+                        {phase.date}
+                      </span>
+                    </div>
+                    <h3 className="font-['Bricolage_Grotesque',sans-serif] font-bold text-slate-900 text-base mb-3">
+                      {phase.title}
+                    </h3>
+                    <ul className="space-y-1.5">
+                      {phase.items.map((item, j) => (
+                        <li key={j} className="flex items-start gap-2 text-sm text-slate-600">
+                          <svg
+                            className="w-3.5 h-3.5 text-emerald-500 mt-0.5 flex-shrink-0"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2.5}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                          </svg>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Stats row under roadmap */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10 pt-10 border-t border-slate-100">
+            {[
+              { label: "Total Commits", value: "180+", sub: "Across all branches" },
+              { label: "Test Coverage", value: "119", sub: "14 test files, 100% pass" },
+              { label: "Docker Images", value: "4", sub: "dev, prod, observability, K8s" },
+              { label: "API Routes", value: "17", sub: "6 resource types" },
+            ].map((s, i) => (
+              <div key={i} className="text-center">
+                <p className="font-['Bricolage_Grotesque',sans-serif] text-3xl font-bold text-indigo-600">
+                  {s.value}
+                </p>
+                <p className="font-['IBM_Plex_Mono',monospace] text-[10px] text-slate-500 uppercase tracking-wider mt-1">
+                  {s.label}
+                </p>
+                <p className="font-['IBM_Plex_Mono',monospace] text-[9px] text-slate-400">
+                  {s.sub}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ══════════ FEATURES BENTO ══════════ */}
       <section id="features" className="py-24 px-5 md:px-8 bg-slate-50 line-grid">
         <div className="max-w-6xl mx-auto">
@@ -2313,7 +2869,7 @@ export default function LandingPage() {
                   </SignUpButton>
                 )}
                 <a
-                  href="https://github.com"
+                  href="https://github.com/aayush598/ollive-assignment"
                   className="btn-secondary px-7 py-3.5 text-sm flex items-center gap-2"
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -2381,23 +2937,30 @@ export default function LandingPage() {
                   "M23 3a10.9 10.9 0 01-3.14 1.53 4.48 4.48 0 00-7.86 3v1A10.66 10.66 0 013 4s-4 9 5 13a11.64 11.64 0 01-7 2c9 5 20 0 20-11.5a4.5 4.5 0 00-.08-.83A7.72 7.72 0 0023 3z",
                   "M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22",
                   "M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z",
-                ].map((d, i) => (
-                  <a
-                    key={i}
-                    href="#"
-                    className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all"
-                  >
-                    <svg
-                      className="w-3.5 h-3.5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.8}
+                ].map((d, i) => {
+                  const urls = [
+                    "https://x.com/ollive_ai",
+                    "https://github.com/aayush598/ollive-assignment",
+                    "https://www.linkedin.com/company/ollive-ai/",
+                  ];
+                  return (
+                    <a
+                      key={i}
+                      href={urls[i]}
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:border-indigo-200 transition-all"
                     >
-                      <path strokeLinecap="round" strokeLinejoin="round" d={d} />
-                    </svg>
-                  </a>
-                ))}
+                      <svg
+                        className="w-3.5 h-3.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={1.8}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d={d} />
+                      </svg>
+                    </a>
+                  );
+                })}
               </div>
             </div>
             {[

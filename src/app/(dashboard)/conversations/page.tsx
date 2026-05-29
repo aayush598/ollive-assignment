@@ -155,6 +155,41 @@ export default function ConversationsPage() {
         </Button>
       </div>
 
+      {/* Stats summary */}
+      {conversations.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {[
+            {
+              label: "Total",
+              value: total,
+              color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+            },
+            {
+              label: "Active",
+              value: conversations.filter((c) => c.status === "active").length,
+              color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+            },
+            {
+              label: "Messages",
+              value: conversations.reduce((s, c) => s + (c.messageCount || 0), 0),
+              color: "bg-violet-50 text-violet-700 border-violet-200",
+            },
+            {
+              label: "Tokens Used",
+              value: conversations.reduce((s, c) => s + (c.totalTokens || 0), 0).toLocaleString(),
+              color: "bg-amber-50 text-amber-700 border-amber-200",
+            },
+          ].map((s) => (
+            <div key={s.label} className={`rounded-xl border ${s.color} p-3 text-center`}>
+              <p className="font-mono-alt text-lg font-bold">{s.value}</p>
+              <p className="text-[10px] font-mono-alt uppercase tracking-wider opacity-70">
+                {s.label}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
       {conversations.length === 0 ? (
         <Card variant="brand">
           <CardContent>

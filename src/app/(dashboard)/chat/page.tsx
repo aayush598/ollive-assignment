@@ -131,7 +131,7 @@ export default function ChatPage() {
           <div className="flex items-center gap-3">
             <h1 className="text-lg font-semibold text-slate-900">Chat</h1>
             <span className="w-1 h-1 rounded-full bg-slate-300" />
-            <span className="text-xs text-slate-400 font-medium">AI Ops TaskFlow</span>
+            <span className="text-xs text-slate-400 font-medium">LLM Inference Logger</span>
           </div>
           <div className="flex items-center gap-3">
             {modelsLoading ? (
