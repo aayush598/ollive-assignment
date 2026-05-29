@@ -1,8 +1,9 @@
 import { createAuthClient } from "better-auth/client";
 
-const baseURL =
-  process.env.NEXT_PUBLIC_BETTER_AUTH_URL ??
-  (typeof window !== "undefined" ? window.location.origin : undefined) ??
-  "http://localhost:3000";
+const options: Parameters<typeof createAuthClient>[0] = {};
 
-export const authClient = createAuthClient({ baseURL });
+if (process.env.NEXT_PUBLIC_BETTER_AUTH_URL) {
+  options.baseURL = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+}
+
+export const authClient = createAuthClient(options);
