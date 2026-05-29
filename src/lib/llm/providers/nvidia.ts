@@ -3,14 +3,7 @@ import { env } from "../../env";
 
 export class NVIDIAProvider implements LLMProvider {
   name = "nvidia";
-  models = [
-    "google/gemma-4-31b-it",
-    "nvidia/llama-3.1-nemotron-70b-instruct",
-    "nvidia/llama-3.1-nemotron-ultra-253b-v1",
-    "mistralai/mistral-large-24-07",
-    "meta/llama-3.1-70b-instruct",
-    "minimaxai/minimax-m2.7",
-  ];
+  models = ["meta/llama-3.1-70b-instruct"];
 
   private apiKey: string;
 

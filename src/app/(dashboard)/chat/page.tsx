@@ -51,7 +51,7 @@ export default function ChatPage() {
           setAvailableModels(data.models);
           if (data.models.length > 0 && !selectedModel) {
             const defaultModel = data.models.find(
-              (m: AvailableModel) => m.model === "google/gemma-4-31b-it",
+              (m: AvailableModel) => m.model === "meta/llama-3.1-70b-instruct",
             );
             setSelectedModel(defaultModel?.model ?? data.models[0].model);
           }
