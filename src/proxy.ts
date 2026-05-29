@@ -47,9 +47,7 @@ export function proxy(request: NextRequest) {
   response.headers.set("X-XSS-Protection", "0");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   response.headers.set("Content-Security-Policy", cspDirectives);
-  response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
-  response.headers.set("Cross-Origin-Resource-Policy", "same-origin");
 
   return response;
 }
