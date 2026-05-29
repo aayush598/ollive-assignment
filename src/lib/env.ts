@@ -12,7 +12,18 @@ function envLog(level: "error" | "warn" | "info", msg: string, data?: Record<str
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   BETTER_AUTH_SECRET: z.string().min(32),
-  BETTER_AUTH_URL: z.string().url(),
+  BETTER_AUTH_URL: z
+    .string()
+    .url()
+    .transform((v) => {
+      if (
+        process.env.VERCEL === "1" &&
+        (v.startsWith("http://localhost") || v.startsWith("https://localhost"))
+      ) {
+        return `https://${process.env.VERCEL_URL}`;
+      }
+      return v;
+    }),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   OPENAI_API_KEY: z.string().optional(),
   ANTHROPIC_API_KEY: z.string().optional(),
@@ -41,6 +52,13 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
 });
 
+function appUrl(): string {
+  if (process.env.VERCEL === "1") return `https://${process.env.VERCEL_URL}`;
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+  return "http://localhost:3000";
+}
+
 function createEnv() {
   const parsed = envSchema.safeParse(process.env);
   if (!parsed.success) {
@@ -58,7 +76,7 @@ function createEnv() {
       BETTER_AUTH_SECRET:
         process.env.BETTER_AUTH_SECRET ??
         "dev-secret-change-in-production-must-be-longer-than-32-chars-here",
-      BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+      BETTER_AUTH_URL: appUrl(),
       NODE_ENV: "development",
       NVIDIA_API_KEY: process.env.NVIDIA_API_KEY,
       GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
