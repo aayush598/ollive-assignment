@@ -213,7 +213,7 @@ services:
     environment:
       DATABASE_URL: ${GLITCHTIP_DATABASE_URL:-postgres://glitchtip:glitchtip@glitchtip-db:5432/glitchtip}
       SECRET_KEY: ${GLITCHTIP_SECRET_KEY:-change-this-to-a-random-secret-key}
-      EMAIL_URL: console://
+      EMAIL_URL: smtp://localhost:25
       PORT: "8000"
       DEFAULT_FROM_EMAIL: glitchtip@example.com
       DJANGO_ALLOWED_HOSTS: localhost,glitchtip
